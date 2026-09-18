@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="raiz" prefWidth="900" prefHeight="600"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.turnos.controlador.PantallaPublicaController">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="panel">
+            <padding>
+                <Insets top="15" right="25" bottom="15" left="25"/>
+            </padding>
+            <Label text="Institución — Sala de Espera" styleClass="titulo"/>
+            <Label fx:id="lblHora" text="00:00:00" styleClass="subtitulo"
+                   HBox.hgrow="ALWAYS" maxWidth="Infinity" style="-fx-alignment: CENTER-RIGHT;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="10" styleClass="panel">
+            <Label text="Turno actual" styleClass="subtitulo"/>
+            <Label fx:id="lblTurnoActual" text="---" styleClass="turno-actual"/>
+            <Label fx:id="lblVentanilla" text="Ventanilla: -" styleClass="subtitulo"/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <VBox spacing="8" styleClass="panel">
+            <padding>
+                <Insets top="15" right="25" bottom="15" left="25"/>
+            </padding>
+            <Label text="Turnos llamados recientemente" styleClass="subtitulo"/>
+            <ListView fx:id="lstHistorial" styleClass="lista-historial" prefHeight="150"/>
+        </VBox>
+    </bottom>
+</BorderPane>

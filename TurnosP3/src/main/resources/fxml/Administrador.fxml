@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="raiz" alignment="TOP_CENTER" prefHeight="500" prefWidth="500" spacing="16" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.turnos.controlador.AdministradorController">
+    <padding>
+        <Insets bottom="30" left="30" right="30" top="30" />
+    </padding>
+
+    <Label styleClass="titulo" text="Panel de Administración" />
+
+    <Button maxWidth="Infinity" styleClass="boton-secundario" text="Usuarios" />
+    <Button maxWidth="Infinity" styleClass="boton-secundario" text="Funcionarios" />
+    <Button maxWidth="Infinity" styleClass="boton-secundario" text="Ventanillas" />
+    <Button maxWidth="Infinity" styleClass="boton-secundario" text="Servicios" />
+    <Button maxWidth="Infinity" styleClass="boton-secundario" text="Estados / Configuración de ventanillas" />
+</VBox>

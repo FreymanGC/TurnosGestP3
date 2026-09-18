@@ -1,0 +1,62 @@
+.root {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-color: #F4F6F8;
+}
+
+.titulo {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1F2A44;
+}
+
+.subtitulo {
+    -fx-font-size: 16px;
+    -fx-text-fill: #5A6B87;
+}
+
+.panel {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 10, 0, 0, 2);
+}
+
+.boton-principal {
+    -fx-background-color: #2D6CDF;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 12 24;
+}
+
+.boton-principal:hover {
+    -fx-background-color: #1E56C4;
+}
+
+.boton-secundario {
+    -fx-background-color: #E6EAF0;
+    -fx-text-fill: #1F2A44;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+}
+
+.boton-secundario:hover {
+    -fx-background-color: #D3DAE5;
+}
+
+.turno-actual {
+    -fx-font-size: 60px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2D6CDF;
+}
+
+.mensaje-error {
+    -fx-text-fill: #D64545;
+    -fx-font-size: 13px;
+}
+
+.lista-historial {
+    -fx-font-size: 14px;
+}

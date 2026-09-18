@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="raiz" prefWidth="850" prefHeight="600"
+           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.turnos.controlador.OperadorController">
+
+    <VBox fx:id="panelLogin" alignment="CENTER" spacing="14" maxWidth="380" maxHeight="380">
+        <padding>
+            <Insets top="40" right="40" bottom="40" left="40"/>
+        </padding>
+
+        <Label text="Iniciar sesión" styleClass="titulo"/>
+        <Label text="Acceso para operadores" styleClass="subtitulo"/>
+
+        <TextField fx:id="txtUsuario" promptText="Usuario" maxWidth="Infinity"/>
+        <PasswordField fx:id="txtContrasena" promptText="Contraseña" maxWidth="Infinity"/>
+
+        <Label fx:id="lblError" text="" styleClass="mensaje-error" wrapText="true"/>
+
+        <Button text="Iniciar sesión" styleClass="boton-principal" onAction="#iniciarSesion" maxWidth="Infinity"/>
+    </VBox>
+
+    <BorderPane fx:id="panelOperador" visible="false" managed="false">
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="20" styleClass="panel">
+                <padding>
+                    <Insets top="15" right="25" bottom="15" left="25"/>
+                </padding>
+                <Label fx:id="lblFuncionario" text="Funcionario: -" styleClass="subtitulo"/>
+                <Label fx:id="lblVentanilla" text="Ventanilla: -" styleClass="subtitulo"/>
+                <Label fx:id="lblEstadoVentanilla" text="Estado: Disponible" styleClass="subtitulo"/>
+            </HBox>
+        </top>
+
+        <center>
+            <VBox alignment="CENTER" spacing="15" styleClass="panel">
+                <Label text="Turno en atención" styleClass="subtitulo"/>
+                <Label fx:id="lblTurnoActual" text="---" styleClass="turno-actual"/>
+
+                <HBox alignment="CENTER" spacing="15">
+                    <Button text="Siguiente turno" styleClass="boton-principal" onAction="#solicitarSiguienteTurno"/>
+                    <Button text="Finalizar atención" styleClass="boton-secundario" onAction="#finalizarAtencion"/>
+                    <Button text="Volver a llamar" styleClass="boton-secundario" onAction="#volverALlamar"/>
+                    <Button text="Marcar no disponible" styleClass="boton-secundario" onAction="#alternarDisponibilidad"/>
+                </HBox>
+            </VBox>
+        </center>
+
+        <bottom>
+            <VBox spacing="8" styleClass="panel">
+                <padding>
+                    <Insets top="15" right="25" bottom="15" left="25"/>
+                </padding>
+                <Label text="Historial reciente" styleClass="subtitulo"/>
+                <ListView fx:id="lstHistorial" styleClass="lista-historial" prefHeight="140"/>
+            </VBox>
+        </bottom>
+    </BorderPane>
+
+</StackPane>
