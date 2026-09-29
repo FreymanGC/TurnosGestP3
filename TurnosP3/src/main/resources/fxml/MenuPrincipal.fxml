@@ -12,8 +12,8 @@
 
     <Label styleClass="titulo" text="Sistema de Gestión de Turnos" />
 
-    <Button maxWidth="Infinity" onAction="#abrirPantallaPublica" styleClass="boton-principal" text="Abrir Pantalla Pública" />
-    <Button maxWidth="Infinity" onAction="#abrirGeneradoraTurnos" styleClass="boton-principal" text="Abrir Generadora de Turnos" />
-    <Button maxWidth="Infinity" onAction="#abrirOperador" styleClass="boton-principal" text="Abrir Operador (Login + Atención)" />
-    <Button maxWidth="Infinity" onAction="#abrirAdministrador" styleClass="boton-principal" text="Abrir Administración" />
+    <Button maxWidth="Infinity" onAction="#abrirPantallaPublica" styleClass="boton-principal" text="Pantalla Pública" />
+    <Button maxWidth="Infinity" onAction="#abrirGeneradoraTurnos" styleClass="boton-principal" text="Generador Turnos" />
+    <Button maxWidth="Infinity" onAction="#abrirOperador" styleClass="boton-principal" text="Operador " />
+    <Button maxWidth="Infinity" onAction="#abrirAdministrador" styleClass="boton-principal" text=" Administración" />
 </VBox>
