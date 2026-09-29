@@ -6,9 +6,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import javafx.scene.control.Alert;
+
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MainApp extends Application {
+
+    private static final Logger LOG = Logger.getLogger(MainApp.class.getName());
 
     @Override
     public void start(Stage stagePrincipal) throws IOException {
@@ -33,7 +39,8 @@ public class MainApp extends Application {
             stage.setScene(escena);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.log(Level.SEVERE, "No se pudo abrir la ventana " + rutaFxml, e);
+            new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana \"" + titulo + "\".").show();
         }
     }
 

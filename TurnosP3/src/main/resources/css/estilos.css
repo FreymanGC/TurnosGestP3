@@ -60,3 +60,8 @@
 .lista-historial {
     -fx-font-size: 14px;
 }
+
+.mensaje-exito {
+    -fx-text-fill: #2E7D32;
+    -fx-font-size: 13px;
+}

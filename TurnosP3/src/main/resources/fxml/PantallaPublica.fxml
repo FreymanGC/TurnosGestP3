@@ -27,6 +27,7 @@
             <Label text="Turno actual" styleClass="subtitulo"/>
             <Label fx:id="lblTurnoActual" text="---" styleClass="turno-actual"/>
             <Label fx:id="lblVentanilla" text="Ventanilla: -" styleClass="subtitulo"/>
+            <Label fx:id="lblAviso" text="" styleClass="mensaje-error" wrapText="true"/>
         </VBox>
     </center>
 

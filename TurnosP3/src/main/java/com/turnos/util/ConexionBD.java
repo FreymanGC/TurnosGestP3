@@ -14,7 +14,8 @@ public class ConexionBD {
 
     private static final String URL =
             "jdbc:mysql://" + HOST + ":" + PUERTO + "/" + BASE_DATOS
-            + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Costa_Rica";
+            + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Costa_Rica"
+            + "&connectTimeout=8000&socketTimeout=20000";
 
     private ConexionBD() {
     }
