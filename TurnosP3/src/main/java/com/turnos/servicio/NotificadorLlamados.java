@@ -4,8 +4,8 @@ import com.turnos.modelo.TurnoLlamado;
 
 /**
  * Punto de extensión para avisar a las pantallas públicas que se llamó un turno.
- * Hoy la única implementación es NotificadorLocal (memoria, mismo proceso). La implementación
- * definitiva enviará el TurnoLlamado por socket al servidor central.
+ * TurnoService no sabe CÓMO se avisa; la implementación del servidor (NotificadorRed) envía
+ * el TurnoLlamado por socket a todos los clientes conectados.
  */
 public interface NotificadorLlamados {
 

@@ -2,28 +2,160 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="raiz" prefWidth="500" prefHeight="500"
+<StackPane fx:id="raiz" prefWidth="1150" prefHeight="700"
            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.turnos.controlador.AdministradorController">
 
     <fx:include fx:id="login" source="Login.fxml"/>
 
-    <VBox fx:id="panelAdmin" alignment="TOP_CENTER" spacing="16" visible="false" managed="false">
-        <padding>
-            <Insets top="30" right="30" bottom="30" left="30"/>
-        </padding>
+    <BorderPane fx:id="panelAdmin" visible="false" managed="false">
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="20" styleClass="panel">
+                <Label styleClass="titulo" text="Panel de Administración"/>
+                <Label fx:id="lblBienvenida" styleClass="subtitulo" text="" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <Button styleClass="boton-secundario" text="Cerrar sesión" onAction="#cerrarSesion"/>
+            </HBox>
+        </top>
 
-        <Label styleClass="titulo" text="Panel de Administración"/>
-        <Label fx:id="lblBienvenida" styleClass="subtitulo" text=""/>
-        
-        <Button maxWidth="Infinity" styleClass="boton-secundario" text="Usuarios" disable="true"/>
-        <Button maxWidth="Infinity" styleClass="boton-secundario" text="Ventanillas" disable="true"/>
-        <Button maxWidth="Infinity" styleClass="boton-secundario" text="Servicios" disable="true"/>
-        <Button maxWidth="Infinity" styleClass="boton-secundario" text="Historial y consultas" disable="true"/>
-        <Button maxWidth="Infinity" styleClass="boton-secundario" text="Cerrar sesión" onAction="#cerrarSesion"/>
-    </VBox>
+        <center>
+            <TabPane tabClosingPolicy="UNAVAILABLE">
+                <!-- ============ USUARIOS Y FUNCIONARIOS ============ -->
+                <Tab text="Usuarios y funcionarios">
+                    <HBox spacing="15">
+                        <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                        <TableView fx:id="tblUsuarios" HBox.hgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colUsuUsuario" text="Usuario" prefWidth="140"/>
+                                <TableColumn fx:id="colUsuNombre" text="Nombre completo" prefWidth="260"/>
+                                <TableColumn fx:id="colUsuRol" text="Rol" prefWidth="130"/>
+                                <TableColumn fx:id="colUsuActivo" text="Activo" prefWidth="80"/>
+                            </columns>
+                        </TableView>
+                        <VBox spacing="8" prefWidth="320" styleClass="panel">
+                            <Label fx:id="lblUsuFormulario" styleClass="subtitulo" text="Nuevo usuario"/>
+                            <Label text="Usuario"/>
+                            <TextField fx:id="txtUsuUsuario" promptText="ej: operador3"/>
+                            <Label text="Nombre completo"/>
+                            <TextField fx:id="txtUsuNombre"/>
+                            <Label text="Rol"/>
+                            <ComboBox fx:id="cmbUsuRol" maxWidth="Infinity"/>
+                            <CheckBox fx:id="chkUsuActivo" text="Activo" selected="true"/>
+                            <Label text="Contraseña"/>
+                            <PasswordField fx:id="txtUsuClave" promptText="Al editar: vacía = no cambiar"/>
+                            <HBox spacing="8">
+                                <Button text="Nuevo" styleClass="boton-secundario" onAction="#nuevoUsuario"/>
+                                <Button text="Guardar" styleClass="boton-principal" onAction="#guardarUsuario"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </Tab>
+
+                <!-- ============ SERVICIOS ============ -->
+                <Tab text="Servicios">
+                    <HBox spacing="15">
+                        <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                        <TableView fx:id="tblServicios" HBox.hgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colSerPrefijo" text="Prefijo" prefWidth="80"/>
+                                <TableColumn fx:id="colSerNombre" text="Nombre" prefWidth="300"/>
+                                <TableColumn fx:id="colSerPrioridad" text="Prioridad" prefWidth="140"/>
+                                <TableColumn fx:id="colSerActivo" text="Activo" prefWidth="80"/>
+                            </columns>
+                        </TableView>
+                        <VBox spacing="8" prefWidth="320" styleClass="panel">
+                            <Label fx:id="lblSerFormulario" styleClass="subtitulo" text="Nuevo servicio"/>
+                            <Label text="Prefijo (una letra)"/>
+                            <TextField fx:id="txtSerPrefijo" promptText="ej: E"/>
+                            <Label text="Nombre"/>
+                            <TextField fx:id="txtSerNombre"/>
+                            <Label text="Prioridad (0 = normal, mayor = se atiende antes)" wrapText="true"/>
+                            <Spinner fx:id="spnSerPrioridad" editable="true" maxWidth="Infinity"/>
+                            <CheckBox fx:id="chkSerActivo" text="Activo (aparece en la generadora)" selected="true"/>
+                            <HBox spacing="8">
+                                <Button text="Nuevo" styleClass="boton-secundario" onAction="#nuevoServicio"/>
+                                <Button text="Guardar" styleClass="boton-principal" onAction="#guardarServicio"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </Tab>
+
+                <!-- ============ VENTANILLAS ============ -->
+                <Tab text="Ventanillas">
+                    <HBox spacing="15">
+                        <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label styleClass="subtitulo" text="Estado en tiempo real" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                                <Button text="Actualizar" styleClass="boton-secundario" onAction="#cargarVentanillas"/>
+                            </HBox>
+                            <TableView fx:id="tblVentanillas" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colVenNumero" text="N.º" prefWidth="60"/>
+                                    <TableColumn fx:id="colVenNombre" text="Nombre" prefWidth="150"/>
+                                    <TableColumn fx:id="colVenDisponible" text="Disponible" prefWidth="110"/>
+                                    <TableColumn fx:id="colVenOperador" text="Operador conectado" prefWidth="180"/>
+                                    <TableColumn fx:id="colVenTurno" text="Turno en curso" prefWidth="150"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                        <VBox spacing="8" prefWidth="320" styleClass="panel">
+                            <Label fx:id="lblVenFormulario" styleClass="subtitulo" text="Nueva ventanilla"/>
+                            <Label text="Número"/>
+                            <TextField fx:id="txtVenNumero" promptText="ej: 3"/>
+                            <Label text="Nombre"/>
+                            <TextField fx:id="txtVenNombre" promptText="ej: Ventanilla 3"/>
+                            <CheckBox fx:id="chkVenDisponible" text="Disponible" selected="true"/>
+                            <Label text="Servicios que puede atender"/>
+                            <VBox fx:id="boxVenServicios" spacing="6"/>
+                            <HBox spacing="8">
+                                <Button text="Nueva" styleClass="boton-secundario" onAction="#nuevaVentanilla"/>
+                                <Button text="Guardar" styleClass="boton-principal" onAction="#guardarVentanilla"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </Tab>
+
+                <!-- ============ CONSULTAS ============ -->
+                <Tab text="Consultas y reportes">
+                    <VBox spacing="10">
+                        <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Consulta:"/>
+                            <ComboBox fx:id="cmbConsulta" prefWidth="320"/>
+                            <Label text="Desde:"/>
+                            <DatePicker fx:id="dpDesde" prefWidth="140"/>
+                            <Label text="Hasta:"/>
+                            <DatePicker fx:id="dpHasta" prefWidth="140"/>
+                            <Button fx:id="btnConsultar" text="Consultar" styleClass="boton-principal" onAction="#consultar"/>
+                        </HBox>
+                        <Label fx:id="lblTituloReporte" styleClass="subtitulo" text=""/>
+                        <TableView fx:id="tblReporte" VBox.vgrow="ALWAYS"/>
+                        <Label fx:id="lblResumenReporte" text="" style="-fx-font-weight: bold;"/>
+                    </VBox>
+                </Tab>
+            </TabPane>
+        </center>
+
+        <bottom>
+            <Label fx:id="lblMensaje" text="" wrapText="true">
+                <BorderPane.margin><Insets top="0" right="15" bottom="10" left="15"/></BorderPane.margin>
+            </Label>
+        </bottom>
+    </BorderPane>
 </StackPane>

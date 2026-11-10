@@ -13,6 +13,10 @@
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.10</javafx.version>
+        <mysql.version>9.7.0</mysql.version>
+        <!-- Programa que abre el botón verde de NetBeans (el servidor central).
+             Las demás aplicaciones: clic derecho al proyecto → Run Maven. -->
+        <app.main>com.turnos.servidor.ServidorTurnos</app.main>
     </properties>
 
     <dependencies>
@@ -30,7 +34,7 @@
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>9.7.0</version>
+            <version>${mysql.version}</version>
         </dependency>
     </dependencies>
 
@@ -41,7 +45,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.15.0</version>
                 <configuration>
-                    <release>21</release>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
 
@@ -50,8 +54,21 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.turnos.MainApp</mainClass>
+                    <mainClass>${app.main}</mainClass>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                    </execution>
+                    <execution>
+                        <id>ide-debug</id>
+                        <configuration>
+                            <options>
+                                <option>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</option>
+                            </options>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

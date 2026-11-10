@@ -65,3 +65,16 @@
     -fx-text-fill: #2E7D32;
     -fx-font-size: 13px;
 }
+
+.boton-preferencial {
+    -fx-background-color: #8E44AD;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 12 24;
+}
+
+.boton-preferencial:hover {
+    -fx-background-color: #7D3C98;
+}

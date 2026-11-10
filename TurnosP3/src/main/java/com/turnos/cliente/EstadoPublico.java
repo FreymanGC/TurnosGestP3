@@ -1,4 +1,4 @@
-package com.turnos.servicio;
+package com.turnos.cliente;
 
 import com.turnos.modelo.TurnoLlamado;
 import javafx.application.Platform;
@@ -10,15 +10,6 @@ import javafx.collections.ObservableList;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
- * SOLUCIÓN TEMPORAL DE DESARROLLO. NO es comunicación distribuida.
- *
- * Es un Singleton en memoria con propiedades observables de JavaFX: solo funciona si el Operador
- * y la Pantalla Pública corren en el MISMO proceso (el menú de pruebas). Cuando las aplicaciones
- * sean independientes, la Pantalla Pública recibirá los TurnoLlamado desde el servidor por socket
- * y este puente se reemplazará (NotificadorLlamados ya aísla el punto de cambio).
- * Al abrirse, la Pantalla Pública precarga su historial desde la BD (cargarHistorial).
- */
 public class EstadoPublico {
 
     private static final int MAXIMO_HISTORIAL = 10;

@@ -14,6 +14,11 @@ public enum Rol {
         return nombre;
     }
 
+    @Override
+    public String toString() {
+        return nombre;
+    }
+
     public static Rol desdeCodigo(String codigo) {
         return Rol.valueOf(codigo.trim().toUpperCase());
     }

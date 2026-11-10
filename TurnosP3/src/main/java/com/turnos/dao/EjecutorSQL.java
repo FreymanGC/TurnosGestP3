@@ -11,10 +11,7 @@ import java.sql.SQLTransientConnectionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Único lugar donde los DAO abren conexiones y manejan transacciones. Traduce las SQLException
- * a PersistenciaException con mensajes aptos para el usuario (el detalle técnico va al log).
- */
+
 final class EjecutorSQL {
 
     private static final Logger LOG = Logger.getLogger(EjecutorSQL.class.getName());

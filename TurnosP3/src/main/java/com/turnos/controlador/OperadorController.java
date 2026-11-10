@@ -1,14 +1,19 @@
 package com.turnos.controlador;
 
+import com.turnos.cliente.AutenticacionRemota;
+import com.turnos.cliente.ClienteRed;
+import com.turnos.cliente.ObservadorServidor;
+import com.turnos.cliente.TurnoRemoto;
+import com.turnos.cliente.VentanillaRemota;
 import com.turnos.modelo.EstadoTurno;
 import com.turnos.modelo.Rol;
 import com.turnos.modelo.Turno;
 import com.turnos.modelo.Usuario;
 import com.turnos.modelo.Ventanilla;
-import com.turnos.servicio.TurnoService;
-import com.turnos.servicio.VentanillaService;
+import com.turnos.protocolo.Mensaje;
 import com.turnos.util.Paneles;
 import com.turnos.util.TareaAsincrona;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -25,7 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class OperadorController {
+public class OperadorController implements ObservadorServidor {
 
     private static final int LIMITE_HISTORIAL = 15;
     private static final String SIN_TURNO = "---";
@@ -54,11 +59,13 @@ public class OperadorController {
     @FXML private Button btnVolverALlamar;
     @FXML private Button btnIniciar;
     @FXML private Button btnFinalizar;
+    @FXML private Button btnAusente;
     @FXML private Button btnDisponibilidad;
     @FXML private ListView<String> lstHistorial;
 
-    private final TurnoService turnoService = new TurnoService();
-    private final VentanillaService ventanillaService = new VentanillaService();
+    private final TurnoRemoto turnoService = new TurnoRemoto();
+    private final VentanillaRemota ventanillaService = new VentanillaRemota();
+    private final AutenticacionRemota autenticacion = new AutenticacionRemota();
     private final ObservableList<String> historial = FXCollections.observableArrayList();
 
     private Usuario operador;
@@ -75,6 +82,7 @@ public class OperadorController {
     private void initialize() {
         loginController.configurar(Rol.OPERADOR, "Acceso para operadores", this::alAutenticar);
         lstHistorial.setItems(historial);
+        ClienteRed.getInstancia().agregarObservador(this);
         mostrarLogin();
     }
 
@@ -105,7 +113,7 @@ public class OperadorController {
     }
 
     private VistaInicial cargarVistaInicial(Ventanilla seleccionada) {
-        Ventanilla actual = ventanillaService.refrescar(seleccionada);
+        Ventanilla actual = ventanillaService.ocupar(seleccionada);
         Turno activo = turnoService.obtenerTurnoActivo(actual).orElse(null);
         return new VistaInicial(actual, activo, turnoService.historialDeVentanilla(actual, LIMITE_HISTORIAL));
     }
@@ -141,6 +149,11 @@ public class OperadorController {
     }
 
     @FXML
+    private void marcarAusente() {
+        ejecutarAccion(() -> turnoService.marcarAusente(turnoActual), "Turno marcado como ausente.");
+    }
+
+    @FXML
     private void alternarDisponibilidad() {
         boolean nuevoEstado = !ventanilla.disponible();
         TareaAsincrona.ejecutar(
@@ -156,6 +169,15 @@ public class OperadorController {
 
     @FXML
     private void cerrarSesion() {
+        TareaAsincrona.ejecutar(() -> {
+            autenticacion.cerrarSesion();
+            return true;
+        }, ok -> { }, mensaje -> { });
+        volverAlLogin();
+    }
+
+    /** Limpia la pantalla y vuelve al formulario de login. */
+    private void volverAlLogin() {
         operador = null;
         ventanilla = null;
         turnoActual = null;
@@ -195,6 +217,7 @@ public class OperadorController {
         btnSiguiente.setDisable(estado != null || !ventanilla.disponible());
         btnVolverALlamar.setDisable(estado != EstadoTurno.LLAMADO);
         btnIniciar.setDisable(estado != EstadoTurno.LLAMADO);
+        btnAusente.setDisable(estado != EstadoTurno.LLAMADO);
         btnFinalizar.setDisable(estado != EstadoTurno.EN_ATENCION);
         btnDisponibilidad.setDisable(estado != null);
     }
@@ -228,5 +251,22 @@ public class OperadorController {
         lblMensaje.getStyleClass().removeAll(CLASE_ERROR, CLASE_EXITO);
         lblMensaje.getStyleClass().add(clase);
         lblMensaje.setText(mensaje);
+    }
+
+    @Override
+    public void alRecibirEvento(Mensaje evento) {
+        // El operador no necesita reaccionar a los avisos de otras ventanillas.
+    }
+
+    /** Si se cae el servidor, la sesión se pierde: se vuelve al login con un aviso. */
+    @Override
+    public void alPerderConexion() {
+        Platform.runLater(() -> {
+            if (operador != null) {
+                volverAlLogin();
+                loginController.mostrarError("Se perdió la conexión con el servidor. "
+                        + "Su turno en curso quedó guardado; inicie sesión de nuevo.");
+            }
+        });
     }
 }

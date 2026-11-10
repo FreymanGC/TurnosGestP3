@@ -13,17 +13,24 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
-/** Flujo del turno: EN_ESPERA → LLAMADO → EN_ATENCION → FINALIZADO. */
+/**
+ * Flujo del turno: EN_ESPERA → LLAMADO → EN_ATENCION → FINALIZADO (o LLAMADO → CANCELADO).
+ *
+ * Concurrencia: en el servidor cada cliente se atiende en un hilo distinto, así que varios hilos
+ * pueden llamar a generarTurno o llamarSiguiente al mismo tiempo. Se protege en dos niveles:
+ *  1. Java: ReentrantLock justo (fair) → un hilo a la vez en la sección crítica.
+ *  2. BD: transacción con FOR UPDATE / SKIP LOCKED en TurnoDAO.
+ */
 public class TurnoService {
+
+    private final ReentrantLock candadoGeneracion = new ReentrantLock(true);
+    private final ReentrantLock candadoAsignacion = new ReentrantLock(true);
 
     private final TurnoDAO turnoDAO;
     private final ServicioDAO servicioDAO;
     private final NotificadorLlamados notificador;
-
-    public TurnoService() {
-        this(new TurnoDAO(), new ServicioDAO(), new NotificadorLocal());
-    }
 
     public TurnoService(TurnoDAO turnoDAO, ServicioDAO servicioDAO, NotificadorLlamados notificador) {
         this.turnoDAO = turnoDAO;
@@ -40,12 +47,23 @@ public class TurnoService {
         if (!vigente.activo()) {
             throw new ReglaNegocioException("El servicio \"" + vigente.nombre() + "\" no está disponible en este momento.");
         }
-        return turnoDAO.generar(vigente, LocalDate.now(), LocalDateTime.now());
+        candadoGeneracion.lock();
+        try {
+            return turnoDAO.generar(vigente, LocalDate.now(), LocalDateTime.now());
+        } finally {
+            candadoGeneracion.unlock();
+        }
     }
 
     public Turno llamarSiguiente(Ventanilla ventanilla, Usuario operador) {
-        Turno turno = turnoDAO.llamarSiguiente(ventanilla.id(), operador.id(), LocalDate.now(), LocalDateTime.now())
-                .orElseThrow(() -> new ReglaNegocioException("No hay turnos en espera para esta ventanilla."));
+        Turno turno;
+        candadoAsignacion.lock();
+        try {
+            turno = turnoDAO.llamarSiguiente(ventanilla.id(), operador.id(), LocalDate.now(), LocalDateTime.now())
+                    .orElseThrow(() -> new ReglaNegocioException("No hay turnos en espera para esta ventanilla."));
+        } finally {
+            candadoAsignacion.unlock();
+        }
         notificar(turno, ventanilla);
         return turno;
     }
@@ -65,6 +83,11 @@ public class TurnoService {
     public Turno finalizarAtencion(Turno turno) {
         return turnoDAO.finalizarAtencion(turno.id(), LocalDateTime.now())
                 .orElseThrow(() -> new ReglaNegocioException("Solo se puede finalizar un turno que está en atención."));
+    }
+
+    public Turno marcarAusente(Turno turno) {
+        return turnoDAO.marcarAusente(turno.id(), LocalDateTime.now())
+                .orElseThrow(() -> new ReglaNegocioException("Solo se puede marcar ausente un turno en estado Llamado."));
     }
 
     public Optional<Turno> obtenerTurnoActivo(Ventanilla ventanilla) {

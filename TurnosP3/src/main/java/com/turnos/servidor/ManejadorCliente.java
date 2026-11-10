@@ -1,52 +1,103 @@
 package com.turnos.servidor;
 
-import java.io.BufferedReader;
+import com.turnos.protocolo.Mensaje;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Atiende a UN cliente en su propio hilo. Protocolo de líneas de texto. Por ahora solo responde
- * PING → PONG y SALIR → ADIOS para poder verificar la conexión y el manejo de varios clientes.
- * PENDIENTE (segundo avance): comandos de generar turno, llamar siguiente y difusión a pantallas,
- * delegando en los servicios existentes (nunca SQL aquí).
+ * Atiende a UN cliente en su propio hilo del pool. Recibe objetos Mensaje, los entrega al
+ * ProcesadorSolicitudes y devuelve la respuesta. También es observador del CentroNotificaciones:
+ * reenvía los eventos (turno llamado, etc.) por este mismo socket.
  */
-class ManejadorCliente implements Runnable {
+class ManejadorCliente implements Runnable, ObservadorEventos {
 
     private static final Logger LOG = Logger.getLogger(ManejadorCliente.class.getName());
 
     private final Socket socket;
+    private final ProcesadorSolicitudes procesador;
+    private final CentroNotificaciones notificaciones;
+    private final Runnable alDesconectar;
+    private final SesionCliente sesion = new SesionCliente();
 
-    ManejadorCliente(Socket socket) {
+    private ObjectOutputStream salida;
+    private volatile boolean activo = true;
+
+    ManejadorCliente(Socket socket, ProcesadorSolicitudes procesador, CentroNotificaciones notificaciones,
+                     Runnable alDesconectar) {
         this.socket = socket;
+        this.procesador = procesador;
+        this.notificaciones = notificaciones;
+        this.alDesconectar = alDesconectar;
     }
 
     @Override
     public void run() {
-        try (socket;
-             BufferedReader entrada = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-             PrintWriter salida = new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8)) {
-            String linea;
-            while ((linea = entrada.readLine()) != null) {
-                if ("SALIR".equalsIgnoreCase(linea.trim())) {
-                    salida.println("ADIOS");
-                    return;
-                }
-                salida.println(responder(linea.trim()));
+        String origen = String.valueOf(socket.getRemoteSocketAddress());
+        try {
+            // Primero la salida (con flush) y después la entrada; si ambos lados abren primero la
+            // entrada, se quedan esperando el encabezado del otro para siempre.
+            salida = new ObjectOutputStream(socket.getOutputStream());
+            salida.flush();
+            ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
+            notificaciones.suscribir(this);
+            LOG.info("[" + Thread.currentThread().getName() + "] Cliente conectado desde " + origen);
+
+            while (activo) {
+                Mensaje solicitud = (Mensaje) entrada.readObject();
+                enviar(procesador.procesar(solicitud, sesion));
             }
-        } catch (IOException e) {
+        } catch (EOFException | SocketException e) {
+            // el cliente cerró la aplicación o se perdió la red
+        } catch (IOException | ClassNotFoundException e) {
             LOG.log(Level.WARNING, "Conexión con el cliente interrumpida", e);
+        } finally {
+            cerrar();
+            LOG.info("[" + Thread.currentThread().getName() + "] Cliente desconectado: " + origen);
         }
     }
 
-    private String responder(String comando) {
-        if ("PING".equalsIgnoreCase(comando)) {
-            return "PONG";
+    @Override
+    public void notificar(Mensaje evento) {
+        enviar(evento);
+    }
+
+    /**
+     * synchronized: la respuesta (hilo de este cliente) y los eventos (hilos de OTROS clientes)
+     * pueden escribir a la vez en el mismo socket; sin esto los bytes se mezclarían.
+     */
+    private synchronized void enviar(Mensaje mensaje) {
+        if (!activo || salida == null) {
+            return;
         }
-        return "ERROR Comando no soportado todavía";
+        try {
+            salida.writeObject(mensaje);
+            salida.flush();
+            salida.reset();
+        } catch (IOException e) {
+            activo = false;
+            cerrarSocket();
+        }
+    }
+
+    void cerrar() {
+        activo = false;
+        notificaciones.desuscribir(this);
+        procesador.cerrarSesion(sesion);
+        cerrarSocket();
+        alDesconectar.run();
+    }
+
+    private void cerrarSocket() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            // ya estaba cerrado
+        }
     }
 }

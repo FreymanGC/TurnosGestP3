@@ -1,8 +1,8 @@
 package com.turnos.controlador;
 
+import com.turnos.cliente.AutenticacionRemota;
 import com.turnos.modelo.Rol;
 import com.turnos.modelo.Usuario;
-import com.turnos.servicio.AutenticacionService;
 import com.turnos.util.TareaAsincrona;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -21,7 +21,7 @@ public class LoginController {
     @FXML private Label lblError;
     @FXML private Button btnIngresar;
 
-    private final AutenticacionService autenticacionService = new AutenticacionService();
+    private final AutenticacionRemota autenticacionService = new AutenticacionRemota();
     private Rol rolRequerido;
     private Consumer<Usuario> alAutenticar;
 
@@ -35,6 +35,10 @@ public class LoginController {
         txtUsuario.clear();
         txtContrasena.clear();
         lblError.setText("");
+    }
+
+    public void mostrarError(String mensaje) {
+        lblError.setText(mensaje);
     }
 
     @FXML

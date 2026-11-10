@@ -17,15 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Acceso a la tabla turno. Las dos operaciones que compiten entre clientes (generar y llamar
- * siguiente) se hacen en una transacción con bloqueo de fila, de modo que:
- *  - dos generadoras del mismo servicio nunca reciben el mismo número;
- *  - dos operadores que piden turno a la vez nunca reciben el mismo turno.
- */
 public class TurnoDAO {
 
     private static final String FORMATO_NUMERO = "%03d";
+    
+    public static final int MINUTOS_MAXIMOS_ESPERA = 20;
 
     private static final String COLUMNAS =
             "t.id_turno, t.id_servicio, t.fecha_operacion, t.numero, t.codigo, t.id_estado_turno, "
@@ -53,7 +49,7 @@ public class TurnoDAO {
     public Optional<Turno> llamarSiguiente(int idVentanilla, int idUsuario, LocalDate fechaOperacion, LocalDateTime ahora) {
         return EjecutorSQL.enTransaccion(conexion -> {
             validarVentanillaLibre(conexion, idVentanilla, fechaOperacion);
-            Optional<Long> idTurno = reservarSiguienteEnEspera(conexion, idVentanilla, fechaOperacion);
+            Optional<Long> idTurno = reservarSiguienteEnEspera(conexion, idVentanilla, fechaOperacion, ahora);
             if (idTurno.isEmpty()) {
                 return Optional.<Turno>empty();
             }
@@ -72,6 +68,13 @@ public class TurnoDAO {
         String sql = "UPDATE turno SET id_estado_turno = ?, fecha_hora_finalizacion = ? "
                 + "WHERE id_turno = ? AND id_estado_turno = ?";
         return transicionar(sql, idTurno, EstadoTurno.FINALIZADO.getId(), ahora, idTurno, EstadoTurno.EN_ATENCION.getId());
+    }
+
+    /** La persona no se presentó al ser llamada: LLAMADO → CANCELADO. */
+    public Optional<Turno> marcarAusente(long idTurno, LocalDateTime ahora) {
+        String sql = "UPDATE turno SET id_estado_turno = ?, fecha_hora_finalizacion = ? "
+                + "WHERE id_turno = ? AND id_estado_turno = ?";
+        return transicionar(sql, idTurno, EstadoTurno.CANCELADO.getId(), ahora, idTurno, EstadoTurno.LLAMADO.getId());
     }
 
     public Optional<Turno> registrarNuevoLlamado(long idTurno, LocalDateTime ahora) {
@@ -217,18 +220,25 @@ public class TurnoDAO {
         }
     }
 
-    private Optional<Long> reservarSiguienteEnEspera(Connection conexion, int idVentanilla, LocalDate fechaOperacion)
-            throws SQLException {
+    /**
+     * Orden de atención (innovación de prioridad):
+     *  1. Turnos que ya esperaron más de MINUTOS_MAXIMOS_ESPERA (nadie espera para siempre).
+     *  2. Servicios con mayor prioridad (preferencial).
+     *  3. Orden de llegada.
+     */
+    private Optional<Long> reservarSiguienteEnEspera(Connection conexion, int idVentanilla, LocalDate fechaOperacion,
+                                                     LocalDateTime ahora) throws SQLException {
         String sql = "SELECT t.id_turno FROM turno t "
                 + "JOIN ventanilla_servicio vs ON vs.id_servicio = t.id_servicio AND vs.id_ventanilla = ? "
                 + "JOIN servicio s ON s.id_servicio = t.id_servicio AND s.activo = 1 "
                 + "WHERE t.id_estado_turno = ? AND t.fecha_operacion = ? "
-                + "ORDER BY t.fecha_hora_generacion, t.id_turno "
+                + "ORDER BY (t.fecha_hora_generacion <= ?) DESC, s.prioridad DESC, t.fecha_hora_generacion, t.id_turno "
                 + "LIMIT 1 FOR UPDATE OF t SKIP LOCKED";
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, idVentanilla);
             ps.setInt(2, EstadoTurno.EN_ESPERA.getId());
             ps.setObject(3, fechaOperacion);
+            ps.setObject(4, ahora.minusMinutes(MINUTOS_MAXIMOS_ESPERA));
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(rs.getLong(1)) : Optional.empty();
             }

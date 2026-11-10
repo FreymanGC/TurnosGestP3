@@ -1,5 +1,6 @@
 package com.turnos.modelo;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -15,5 +16,5 @@ public record Turno(
         LocalDateTime fechaHoraInicioAtencion,
         LocalDateTime fechaHoraFinalizacion,
         Integer idVentanilla,
-        Integer idUsuario) {
+        Integer idUsuario) implements Serializable {
 }

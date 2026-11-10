@@ -1,19 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Para abrir cada aplicación: clic derecho sobre el proyecto → Run Maven → elegir.
+  Orden: 1 Servidor, luego las demás. Se pueden abrir varias a la vez (ej. dos operadores).
+-->
 <actions>
-        <action>
-            <actionName>run</actionName>
-            <packagings>
-                <packaging>jar</packaging>
-            </packagings>
-            <goals>
-                <goal>javafx:run</goal>
-            </goals>
-            <properties>
-                <exec.vmArgs></exec.vmArgs>
-                <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
-                <exec.appArgs></exec.appArgs>
-                <exec.mainClass>${packageClassName}</exec.mainClass>
-                <exec.executable>java</exec.executable>
-            </properties>
-        </action>
-    </actions>
+    <action>
+        <actionName>run</actionName>
+        <packagings>
+            <packaging>jar</packaging>
+        </packagings>
+        <goals>
+            <goal>javafx:run</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>debug</actionName>
+        <goals>
+            <goal>javafx:run@ide-debug</goal>
+        </goals>
+        <properties>
+            <jpda.listen>true</jpda.listen>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-servidor</actionName>
+        <displayName>1 - Servidor central</displayName>
+        <goals>
+            <goal>javafx:run</goal>
+        </goals>
+        <properties>
+            <app.main>com.turnos.servidor.ServidorTurnos</app.main>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-pantalla</actionName>
+        <displayName>2 - Pantalla pública</displayName>
+        <goals>
+            <goal>javafx:run</goal>
+        </goals>
+        <properties>
+            <app.main>com.turnos.PantallaPublicaApp</app.main>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-operador</actionName>
+        <displayName>3 - Operador</displayName>
+        <goals>
+            <goal>javafx:run</goal>
+        </goals>
+        <properties>
+            <app.main>com.turnos.OperadorApp</app.main>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-generadora</actionName>
+        <displayName>4 - Generadora de turnos</displayName>
+        <goals>
+            <goal>javafx:run</goal>
+        </goals>
+        <properties>
+            <app.main>com.turnos.GeneradoraApp</app.main>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-administrador</actionName>
+        <displayName>5 - Administrador</displayName>
+        <goals>
+            <goal>javafx:run</goal>
+        </goals>
+        <properties>
+            <app.main>com.turnos.AdministradorApp</app.main>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-conexion</actionName>
+        <displayName>6 - Probar conexión a la base de datos</displayName>
+        <goals>
+            <goal>javafx:run</goal>
+        </goals>
+        <properties>
+            <app.main>com.turnos.util.ConexionBD</app.main>
+        </properties>
+    </action>
+</actions>

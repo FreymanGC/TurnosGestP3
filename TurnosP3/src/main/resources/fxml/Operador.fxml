@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="raiz" prefWidth="950" prefHeight="620"
+<StackPane fx:id="raiz" prefWidth="1180" prefHeight="620"
            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.turnos.controlador.OperadorController">
 
@@ -53,6 +53,7 @@
                     <Button fx:id="btnVolverALlamar" text="Volver a llamar" styleClass="boton-secundario" onAction="#volverALlamar"/>
                     <Button fx:id="btnIniciar" text="Iniciar atención" styleClass="boton-secundario" onAction="#iniciarAtencion"/>
                     <Button fx:id="btnFinalizar" text="Finalizar atención" styleClass="boton-secundario" onAction="#finalizarAtencion"/>
+                    <Button fx:id="btnAusente" text="No se presentó" styleClass="boton-secundario" onAction="#marcarAusente"/>
                     <Button fx:id="btnDisponibilidad" text="Marcar no disponible" styleClass="boton-secundario" onAction="#alternarDisponibilidad"/>
                 </HBox>
 
