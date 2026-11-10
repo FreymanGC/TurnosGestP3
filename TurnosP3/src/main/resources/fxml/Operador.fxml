@@ -1,75 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
 
-<StackPane fx:id="raiz" prefWidth="1180" prefHeight="620"
+<StackPane fx:id="raiz" prefWidth="1180" prefHeight="680" styleClass="fondo-app"
            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.turnos.controlador.OperadorController">
 
+    <!-- Hojas de estilo de esta vista: la común y la propia -->
+    <stylesheets>
+        <URL value="@../css/comun.css"/>
+        <URL value="@../css/operador.css"/>
+    </stylesheets>
+
     <fx:include fx:id="login" source="Login.fxml"/>
 
-    <VBox fx:id="panelVentanilla" alignment="CENTER" spacing="14" maxWidth="420" maxHeight="380"
-          visible="false" managed="false">
+    <!-- Paso 2: elegir ventanilla -->
+    <VBox fx:id="panelVentanilla" alignment="CENTER" spacing="14" maxWidth="420" maxHeight="420"
+          visible="false" managed="false" styleClass="panel-ventanilla">
         <padding>
-            <Insets top="40" right="40" bottom="40" left="40"/>
+            <Insets top="36" right="40" bottom="36" left="40"/>
         </padding>
-        <Label fx:id="lblBienvenida" text="" styleClass="titulo" wrapText="true"/>
-        <Label text="Seleccione su ventanilla" styleClass="subtitulo"/>
+        <ImageView fitWidth="70" fitHeight="70" preserveRatio="true">
+            <Image url="@../img/logo.png"/>
+        </ImageView>
+        <Label fx:id="lblBienvenida" text="" styleClass="titulo" wrapText="true" textAlignment="CENTER"/>
+        <Label text="¿En qué ventanilla va a atender hoy?" styleClass="subtitulo"/>
         <ComboBox fx:id="cmbVentanilla" maxWidth="Infinity"/>
         <Label fx:id="lblErrorVentanilla" text="" styleClass="mensaje-error" wrapText="true"/>
-        <Button fx:id="btnContinuar" text="Continuar" styleClass="boton-principal" onAction="#confirmarVentanilla" maxWidth="Infinity"/>
+        <Button fx:id="btnContinuar" text="Comenzar a atender" styleClass="boton-principal" onAction="#confirmarVentanilla" maxWidth="Infinity"/>
     </VBox>
 
+    <!-- Paso 3: atención -->
     <BorderPane fx:id="panelOperador" visible="false" managed="false">
         <top>
-            <HBox alignment="CENTER_LEFT" spacing="20" styleClass="panel">
-                <padding>
-                    <Insets top="15" right="25" bottom="15" left="25"/>
-                </padding>
-                <Label fx:id="lblFuncionario" text="Funcionario: -" styleClass="subtitulo"/>
-                <Label fx:id="lblVentanilla" text="Ventanilla: -" styleClass="subtitulo"/>
-                <Label fx:id="lblEstadoVentanilla" text="Estado: -" styleClass="subtitulo"
-                       HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                <Button text="Cerrar sesión" styleClass="boton-secundario" onAction="#cerrarSesion"/>
+            <HBox alignment="CENTER_LEFT" spacing="14" styleClass="encabezado">
+                <ImageView fitWidth="38" fitHeight="38" preserveRatio="true">
+                    <Image url="@../img/logo.png"/>
+                </ImageView>
+                <Label fx:id="lblAvatar" text="" styleClass="avatar"/>
+                <VBox>
+                    <Label fx:id="lblFuncionario" text="-" styleClass="titulo"/>
+                    <Label fx:id="lblVentanilla" text="Ventanilla: -" styleClass="subtitulo"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblEstadoVentanilla" text="-" styleClass="chip"/>
+                <Button text="Cerrar sesión" styleClass="boton-encabezado" onAction="#cerrarSesion">
+                    <graphic>
+                        <SVGPath styleClass="icono" content="M5 4h8v2H7v12h6v2H5zM15.6 7.6L20 12l-4.4 4.4-1.4-1.4 2-2H10v-2h6.8l-2-2z"/>
+                    </graphic>
+                </Button>
             </HBox>
         </top>
 
         <center>
-            <VBox alignment="CENTER" spacing="15" styleClass="panel">
-                <Label text="Turno en curso" styleClass="subtitulo"/>
-                <Label fx:id="lblTurnoActual" text="---" styleClass="turno-actual"/>
-                <Label fx:id="lblEstadoTurno" text="Sin turno asignado" styleClass="subtitulo"/>
-
-                <HBox fx:id="boxAcciones" alignment="CENTER" spacing="12">
-                    <Button fx:id="btnSiguiente" text="Siguiente turno" styleClass="boton-principal" onAction="#solicitarSiguienteTurno"/>
-                    <Button fx:id="btnVolverALlamar" text="Volver a llamar" styleClass="boton-secundario" onAction="#volverALlamar"/>
-                    <Button fx:id="btnIniciar" text="Iniciar atención" styleClass="boton-secundario" onAction="#iniciarAtencion"/>
-                    <Button fx:id="btnFinalizar" text="Finalizar atención" styleClass="boton-secundario" onAction="#finalizarAtencion"/>
-                    <Button fx:id="btnAusente" text="No se presentó" styleClass="boton-secundario" onAction="#marcarAusente"/>
-                    <Button fx:id="btnDisponibilidad" text="Marcar no disponible" styleClass="boton-secundario" onAction="#alternarDisponibilidad"/>
-                </HBox>
-
-                <Label fx:id="lblMensaje" text="" styleClass="mensaje-error" wrapText="true"/>
-            </VBox>
-        </center>
-
-        <bottom>
-            <VBox spacing="8" styleClass="panel">
+            <HBox spacing="22">
                 <padding>
-                    <Insets top="15" right="25" bottom="15" left="25"/>
+                    <Insets top="22" right="24" bottom="22" left="24"/>
                 </padding>
-                <Label text="Historial de hoy en esta ventanilla" styleClass="subtitulo"/>
-                <ListView fx:id="lstHistorial" styleClass="lista-historial" prefHeight="150"/>
-            </VBox>
-        </bottom>
+
+                <VBox alignment="CENTER" spacing="14" styleClass="tarjeta" HBox.hgrow="ALWAYS">
+                    <Label text="TURNO EN CURSO" styleClass="etiqueta-seccion"/>
+                    <Label fx:id="lblTurnoActual" text="---" styleClass="turno-actual"/>
+                    <Label fx:id="lblEstadoTurno" text="Sin turno asignado" styleClass="estado-turno"/>
+
+                    <FlowPane fx:id="boxAcciones" alignment="CENTER" hgap="10" vgap="10">
+                        <VBox.margin><Insets top="16"/></VBox.margin>
+                        <Button fx:id="btnSiguiente" text="Llamar siguiente" styleClass="boton-principal" onAction="#solicitarSiguienteTurno">
+                            <graphic><SVGPath styleClass="icono" content="M6 5l9 7-9 7zM16 5h2.5v14H16z"/></graphic>
+                        </Button>
+                        <Button fx:id="btnVolverALlamar" text="Volver a llamar" styleClass="boton-aviso" onAction="#volverALlamar">
+                            <graphic><SVGPath styleClass="icono" content="M3 9.5v5h3.5l6 4.5V5l-6 4.5zM15 8.5h2v7h-2zM19 6.5h2v11h-2z"/></graphic>
+                        </Button>
+                        <Button fx:id="btnIniciar" text="Iniciar atención" styleClass="boton-exito" onAction="#iniciarAtencion">
+                            <graphic><SVGPath styleClass="icono" content="M8 5l11 7-11 7z"/></graphic>
+                        </Button>
+                        <Button fx:id="btnFinalizar" text="Finalizar" styleClass="boton-exito" onAction="#finalizarAtencion">
+                            <graphic><SVGPath styleClass="icono" content="M4 12.6l1.8-1.8 4.2 4.2 8.2-8.2 1.8 1.8L10 18.6z"/></graphic>
+                        </Button>
+                        <Button fx:id="btnAusente" text="No se presentó" styleClass="boton-peligro" onAction="#marcarAusente">
+                            <graphic><SVGPath styleClass="icono" content="M6.4 5L12 10.6 17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></graphic>
+                        </Button>
+                        <Button fx:id="btnDisponibilidad" text="Pausar ventanilla" styleClass="boton-secundario" onAction="#alternarDisponibilidad">
+                            <graphic><SVGPath styleClass="icono" content="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></graphic>
+                        </Button>
+                    </FlowPane>
+
+                    <Label fx:id="lblMensaje" text="" styleClass="mensaje-error" wrapText="true"/>
+                </VBox>
+
+                <VBox spacing="10" prefWidth="380" minWidth="340" styleClass="tarjeta">
+                    <Label text="HISTORIAL DE HOY" styleClass="etiqueta-seccion"/>
+                    <ListView fx:id="lstHistorial" VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </HBox>
+        </center>
     </BorderPane>
 
 </StackPane>

@@ -14,6 +14,7 @@ public enum TipoMensaje {
     LISTAR_SERVICIOS_ACTIVOS,
     GENERAR_TURNO,
     ULTIMOS_LLAMADOS,
+    URL_CONSULTA_TURNO,
 
     // Sesión
     LOGIN,

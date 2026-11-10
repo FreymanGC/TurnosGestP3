@@ -21,6 +21,7 @@ import javafx.util.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+
 public class PantallaPublicaController implements ObservadorServidor {
 
     @FXML private Label lblHora;
@@ -43,7 +44,7 @@ public class PantallaPublicaController implements ObservadorServidor {
 
         EstadoPublico estado = EstadoPublico.getInstancia();
         lblTurnoActual.textProperty().bind(estado.turnoLlamadoProperty());
-        lblVentanilla.textProperty().bind(Bindings.concat("Ventanilla: ", estado.ventanillaLlamadaProperty()));
+        lblVentanilla.textProperty().bind(Bindings.concat("Ventanilla ", estado.ventanillaLlamadaProperty()));
         lstHistorial.setItems(estado.getHistorial());
 
         cliente.agregarObservador(this);

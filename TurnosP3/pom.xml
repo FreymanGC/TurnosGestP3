@@ -14,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.10</javafx.version>
         <mysql.version>9.7.0</mysql.version>
+        <zxing.version>3.5.3</zxing.version>
         <!-- Programa que abre el botón verde de NetBeans (el servidor central).
              Las demás aplicaciones: clic derecho al proyecto → Run Maven. -->
         <app.main>com.turnos.servidor.ServidorTurnos</app.main>
@@ -35,6 +36,13 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>${mysql.version}</version>
+        </dependency>
+
+        <!-- ZXing: genera el código QR que se imprime en cada turno -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>${zxing.version}</version>
         </dependency>
     </dependencies>
 

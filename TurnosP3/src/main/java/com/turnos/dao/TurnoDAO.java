@@ -17,10 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 public class TurnoDAO {
 
     private static final String FORMATO_NUMERO = "%03d";
-    
+    /** Innovación: si un turno normal espera más que esto, pasa antes que los preferenciales. */
     public static final int MINUTOS_MAXIMOS_ESPERA = 20;
 
     private static final String COLUMNAS =
@@ -84,6 +85,24 @@ public class TurnoDAO {
 
     public Optional<Turno> buscarPorId(long idTurno) {
         return EjecutorSQL.consultar(conexion -> leer(conexion, idTurno));
+    }
+
+    /** Turnos del mismo servicio y día que siguen en espera y llegaron antes que este. */
+    public int contarEnEsperaAntes(Turno turno) {
+        String sql = "SELECT COUNT(*) FROM turno WHERE id_servicio = ? AND fecha_operacion = ? "
+                + "AND id_estado_turno = ? AND id_turno < ?";
+        return EjecutorSQL.consultar(conexion -> {
+            try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+                ps.setInt(1, turno.idServicio());
+                ps.setObject(2, turno.fechaOperacion());
+                ps.setInt(3, EstadoTurno.EN_ESPERA.getId());
+                ps.setLong(4, turno.id());
+                try (ResultSet rs = ps.executeQuery()) {
+                    rs.next();
+                    return rs.getInt(1);
+                }
+            }
+        });
     }
 
     public Optional<Turno> buscarActivoDeVentanilla(int idVentanilla, LocalDate fechaOperacion) {
@@ -220,12 +239,7 @@ public class TurnoDAO {
         }
     }
 
-    /**
-     * Orden de atención (innovación de prioridad):
-     *  1. Turnos que ya esperaron más de MINUTOS_MAXIMOS_ESPERA (nadie espera para siempre).
-     *  2. Servicios con mayor prioridad (preferencial).
-     *  3. Orden de llegada.
-     */
+   
     private Optional<Long> reservarSiguienteEnEspera(Connection conexion, int idVentanilla, LocalDate fechaOperacion,
                                                      LocalDateTime ahora) throws SQLException {
         String sql = "SELECT t.id_turno FROM turno t "

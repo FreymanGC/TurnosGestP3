@@ -23,7 +23,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
 import java.time.format.DateTimeFormatter;
@@ -36,7 +36,7 @@ public class OperadorController implements ObservadorServidor {
     private static final String SIN_TURNO = "---";
     private static final String CLASE_ERROR = "mensaje-error";
     private static final String CLASE_EXITO = "mensaje-exito";
-    private static final DateTimeFormatter FORMATO_HORA = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private static final DateTimeFormatter FORMATO_HORA = DateTimeFormatter.ofPattern("HH:mm");
 
     @FXML private Node login;
     @FXML private LoginController loginController;
@@ -54,7 +54,8 @@ public class OperadorController implements ObservadorServidor {
     @FXML private Label lblTurnoActual;
     @FXML private Label lblEstadoTurno;
     @FXML private Label lblMensaje;
-    @FXML private HBox boxAcciones;
+    @FXML private FlowPane boxAcciones;
+    @FXML private Label lblAvatar;
     @FXML private Button btnSiguiente;
     @FXML private Button btnVolverALlamar;
     @FXML private Button btnIniciar;
@@ -121,7 +122,8 @@ public class OperadorController implements ObservadorServidor {
     private void entrarAlPanel(VistaInicial vista) {
         ventanilla = vista.ventanilla();
         turnoActual = vista.turnoActivo();
-        lblFuncionario.setText("Funcionario: " + operador.nombreCompleto());
+        lblFuncionario.setText(operador.nombreCompleto());
+        lblAvatar.setText(iniciales(operador.nombreCompleto()));
         mostrarHistorial(vista.historial());
         limpiarMensaje();
         refrescarPantalla();
@@ -207,11 +209,17 @@ public class OperadorController implements ObservadorServidor {
     }
 
     private void refrescarPantalla() {
-        lblVentanilla.setText("Ventanilla: " + ventanilla.etiqueta());
-        lblEstadoVentanilla.setText("Estado: " + (ventanilla.disponible() ? "Disponible" : "No disponible"));
-        btnDisponibilidad.setText(ventanilla.disponible() ? "Marcar no disponible" : "Marcar disponible");
+        lblVentanilla.setText("Atendiendo en " + ventanilla.etiqueta());
+        lblEstadoVentanilla.setText(ventanilla.disponible() ? "● Disponible" : "● En pausa");
+        lblEstadoVentanilla.getStyleClass().removeAll("chip-ok", "chip-off");
+        lblEstadoVentanilla.getStyleClass().add(ventanilla.disponible() ? "chip-ok" : "chip-off");
+        btnDisponibilidad.setText(ventanilla.disponible() ? "Pausar ventanilla" : "Reanudar ventanilla");
         lblTurnoActual.setText(turnoActual == null ? SIN_TURNO : turnoActual.codigo());
         lblEstadoTurno.setText(turnoActual == null ? "Sin turno asignado" : turnoActual.estado().getNombre());
+        lblEstadoTurno.getStyleClass().removeAll("estado-llamado", "estado-atencion");
+        if (turnoActual != null) {
+            lblEstadoTurno.getStyleClass().add(turnoActual.estado() == EstadoTurno.LLAMADO ? "estado-llamado" : "estado-atencion");
+        }
 
         EstadoTurno estado = turnoActual == null ? null : turnoActual.estado();
         btnSiguiente.setDisable(estado != null || !ventanilla.disponible());
@@ -227,7 +235,7 @@ public class OperadorController implements ObservadorServidor {
     }
 
     private String describir(Turno turno) {
-        String hora = turno.fechaHoraLlamado() == null ? "" : "  ·  llamado " + turno.fechaHoraLlamado().format(FORMATO_HORA);
+        String hora = turno.fechaHoraLlamado() == null ? "" : "   ·   " + turno.fechaHoraLlamado().format(FORMATO_HORA);
         return turno.codigo() + "  ·  " + turno.estado().getNombre() + hora;
     }
 
@@ -251,6 +259,17 @@ public class OperadorController implements ObservadorServidor {
         lblMensaje.getStyleClass().removeAll(CLASE_ERROR, CLASE_EXITO);
         lblMensaje.getStyleClass().add(clase);
         lblMensaje.setText(mensaje);
+    }
+
+    /** "Andrey Gomez" → "AG" (para el círculo del encabezado). */
+    private static String iniciales(String nombre) {
+        StringBuilder letras = new StringBuilder();
+        for (String parte : nombre.trim().split("\\s+")) {
+            if (!parte.isEmpty() && letras.length() < 2) {
+                letras.append(Character.toUpperCase(parte.charAt(0)));
+            }
+        }
+        return letras.toString();
     }
 
     @Override

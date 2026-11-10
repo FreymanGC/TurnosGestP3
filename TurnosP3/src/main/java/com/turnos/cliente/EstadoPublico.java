@@ -10,10 +10,15 @@ import javafx.collections.ObservableList;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Estado que muestra la Pantalla Pública (Singleton con propiedades observables de JavaFX).
+ * Ya no depende de estar en el mismo proceso que el Operador: lo alimentan los eventos
+ * EVENTO_TURNO_LLAMADO que el servidor envía por el socket (ver PantallaPublicaController).
+ */
 public class EstadoPublico {
 
     private static final int MAXIMO_HISTORIAL = 10;
-    private static final DateTimeFormatter FORMATO_HORA = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private static final DateTimeFormatter FORMATO_HORA = DateTimeFormatter.ofPattern("HH:mm");
     private static final EstadoPublico INSTANCIA = new EstadoPublico();
 
     private final StringProperty turnoLlamado = new SimpleStringProperty("---");
@@ -65,7 +70,7 @@ public class EstadoPublico {
 
     private static String describir(TurnoLlamado llamado) {
         return llamado.codigo() + "  →  Ventanilla " + llamado.numeroVentanilla()
-                + "  (" + llamado.fechaHoraLlamado().format(FORMATO_HORA) + ")";
+                + "  ·  " + llamado.fechaHoraLlamado().format(FORMATO_HORA);
     }
 
     private static void enHiloFx(Runnable accion) {

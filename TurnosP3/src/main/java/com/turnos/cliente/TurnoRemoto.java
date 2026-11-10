@@ -10,6 +10,7 @@ import com.turnos.protocolo.TipoMensaje;
 import java.util.List;
 import java.util.Optional;
 
+
 public class TurnoRemoto {
 
     private final ClienteRed cliente = ClienteRed.getInstancia();
@@ -48,6 +49,11 @@ public class TurnoRemoto {
 
     public List<Turno> historialDeVentanilla(Ventanilla ventanilla, int limite) {
         return cliente.enviar(TipoMensaje.HISTORIAL_VENTANILLA, limite);
+    }
+
+    /** Dirección base de la página del QR (la da el servidor, que conoce su IP en la red). */
+    public String urlConsultaTurno() {
+        return cliente.enviar(TipoMensaje.URL_CONSULTA_TURNO, null);
     }
 
     public List<TurnoLlamado> ultimosLlamados(int limite) {

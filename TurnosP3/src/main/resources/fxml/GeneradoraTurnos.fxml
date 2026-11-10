@@ -1,32 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="raiz" alignment="CENTER" spacing="25" prefWidth="700" prefHeight="550"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.turnos.controlador.GeneradoraTurnosController">
-    <padding>
-        <Insets top="30" right="30" bottom="30" left="30"/>
-    </padding>
+<BorderPane fx:id="raiz" prefWidth="1100" prefHeight="740" styleClass="fondo-app"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.turnos.controlador.GeneradoraTurnosController">
 
-    <Label text="Seleccione el servicio que necesita" styleClass="titulo"/>
+    <!-- Hojas de estilo de esta vista: la común y la propia -->
+    <stylesheets>
+        <URL value="@../css/comun.css"/>
+        <URL value="@../css/generadora.css"/>
+    </stylesheets>
 
-    <GridPane fx:id="gridServicios" hgap="20" vgap="20" alignment="CENTER">
-        <columnConstraints>
-            <ColumnConstraints percentWidth="50"/>
-            <ColumnConstraints percentWidth="50"/>
-        </columnConstraints>
-    </GridPane>
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="14" styleClass="encabezado">
+            <ImageView fitWidth="46" fitHeight="46" preserveRatio="true">
+                <Image url="@../img/logo.png"/>
+            </ImageView>
+            <VBox>
+                <Label text="¡Bienvenido!" styleClass="titulo"/>
+                <Label text="Toque el servicio que necesita y retire su turno" styleClass="subtitulo"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblHora" text="" styleClass="hora-encabezado"/>
+        </HBox>
+    </top>
 
-    <Label fx:id="lblMensaje" text="" styleClass="mensaje-error" wrapText="true"/>
+    <center>
+        <HBox spacing="30" alignment="CENTER">
+            <padding>
+                <Insets top="28" right="34" bottom="28" left="34"/>
+            </padding>
 
-    <VBox alignment="CENTER" spacing="8" styleClass="panel">
-        <Label text="Su turno" styleClass="subtitulo"/>
-        <Label fx:id="lblTurnoGenerado" text="-" styleClass="turno-actual"/>
-        <Label fx:id="lblDetalleTurno" text="" styleClass="subtitulo"/>
-    </VBox>
-</VBox>
+            <VBox spacing="16" HBox.hgrow="ALWAYS" alignment="TOP_LEFT">
+                <Label text="¿QUÉ NECESITA HOY?" styleClass="etiqueta-seccion"/>
+                <GridPane fx:id="gridServicios" hgap="22" vgap="22">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50"/>
+                        <ColumnConstraints percentWidth="50"/>
+                    </columnConstraints>
+                </GridPane>
+                <Label fx:id="lblMensaje" text="" styleClass="mensaje-error" wrapText="true"/>
+            </VBox>
+
+            <VBox fx:id="tiquete" alignment="CENTER" spacing="8" prefWidth="330" minWidth="310" styleClass="tiquete">
+                <Label text="SU TURNO" styleClass="etiqueta-seccion"/>
+                <Label fx:id="lblTurnoGenerado" text="—" styleClass="codigo-tiquete" minWidth="-Infinity"/>
+                <Label fx:id="lblDetalleTurno" text="Seleccione un servicio" styleClass="subtitulo" wrapText="true"/>
+                <ImageView fx:id="imgQR" fitWidth="190" fitHeight="190" preserveRatio="true" smooth="false">
+                    <VBox.margin><Insets top="8"/></VBox.margin>
+                </ImageView>
+                <Label fx:id="lblQR" text="Escanee el código para ver en su celular cuándo y en qué ventanilla lo atienden"
+                       styleClass="texto-qr" wrapText="true" textAlignment="CENTER" visible="false" managed="false"/>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

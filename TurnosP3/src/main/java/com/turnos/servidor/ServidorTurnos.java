@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 public class ServidorTurnos implements AutoCloseable {
 
     static {
@@ -99,8 +100,21 @@ public class ServidorTurnos implements AutoCloseable {
     /** Run Maven → "1 - Servidor central". La bitácora se ve en la ventana Output de NetBeans. */
     public static void main(String[] args) throws IOException {
         int puerto = args.length > 0 ? Integer.parseInt(args[0]) : ConfiguracionRed.getInstancia().getPuerto();
+        ConfiguracionRed config = ConfiguracionRed.getInstancia();
+        ServidorWebTurnos web = new ServidorWebTurnos(config.getPuertoWeb());
+        try {
+            web.iniciar();
+            LOG.info("Consulta de turnos por QR disponible en " + config.getUrlConsultaTurno()
+                    + "  (si el celular no la abre: misma red Wi-Fi, permitir Java en el firewall,"
+                    + " o poner web.host=<IP de esta computadora> en red.properties)");
+        } catch (IOException e) {
+            LOG.warning("No se pudo iniciar la página web del QR (puerto " + config.getPuertoWeb()
+                    + " ocupado): " + e.getMessage());
+        }
         try (ServidorTurnos servidor = new ServidorTurnos(puerto)) {
             servidor.iniciar();
+        } finally {
+            web.detener();
         }
     }
 }

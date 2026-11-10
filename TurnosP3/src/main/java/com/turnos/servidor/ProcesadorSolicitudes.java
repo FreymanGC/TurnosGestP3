@@ -71,6 +71,8 @@ class ProcesadorSolicitudes {
                 registrar("Generadora: nuevo turno " + turno.codigo());
                 return turno;
             }
+            case URL_CONSULTA_TURNO:
+                return com.turnos.util.ConfiguracionRed.getInstancia().getUrlConsultaTurno();
             case ULTIMOS_LLAMADOS:
                 return new ArrayList<>(turnoService.ultimosLlamados((Integer) m.getDatos()));
 
