@@ -33,7 +33,11 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-
+/**
+ * Terminal (kiosko) donde la persona elige el servicio y retira su turno.
+ * Cada servicio tiene su propio color e ícono; el tiquete incluye un QR para seguir el turno
+ * desde el celular.
+ */
 public class GeneradoraTurnosController implements ObservadorServidor {
 
     private static final int COLUMNAS = 2;
@@ -58,9 +62,17 @@ public class GeneradoraTurnosController implements ObservadorServidor {
     @FXML private ImageView imgQR;
     @FXML private ImageView imgIlustracion;
     @FXML private Label lblUrl;
+    @FXML private Button btnFinalizar;
+    @FXML private Label lblCuenta;
+
+    /** Segundos que el tiquete queda en pantalla antes de limpiarse solo. */
+    private static final int SEGUNDOS_PARA_LIMPIAR = 30;
+    private Timeline cuentaRegresiva;
+    private int segundosRestantes;
 
     private final ServicioRemoto servicioService = new ServicioRemoto();
     private final TurnoRemoto turnoService = new TurnoRemoto();
+    /** Dirección base de la página del QR; se pide al servidor una sola vez. */
     private volatile String urlConsulta;
 
     @FXML
@@ -204,6 +216,57 @@ public class GeneradoraTurnosController implements ObservadorServidor {
         salto.setToY(1);
         salto.play();
         Animaciones.rebote(lblTurnoGenerado);
+        iniciarCuentaRegresiva();
+    }
+
+    // ------------------------------------------------------------------ finalizar solicitud
+
+    /**
+     * Botón "Finalizar solicitud": la persona ya tiene su turno (o le tomó foto al QR),
+     * así que el tiquete se limpia y el kiosko queda listo para el siguiente cliente.
+     * Así nadie ve ni escanea el turno de otra persona.
+     */
+    @FXML
+    private void finalizarSolicitud() {
+        if (cuentaRegresiva != null) {
+            cuentaRegresiva.stop();
+        }
+        lblTurnoGenerado.setText("—");
+        lblDetalleTurno.setText("Seleccione un servicio");
+        lblMensaje.setText("");
+        mostrarQR(null);
+        btnFinalizar.setVisible(false);
+        btnFinalizar.setManaged(false);
+        lblCuenta.setVisible(false);
+        lblCuenta.setManaged(false);
+        Animaciones.aparecer(tiquete);
+    }
+
+    /** Muestra el botón con una cuenta regresiva; al llegar a 0 se finaliza solo. */
+    private void iniciarCuentaRegresiva() {
+        if (cuentaRegresiva != null) {
+            cuentaRegresiva.stop();   // si piden otro turno seguido, la cuenta vuelve a empezar
+        }
+        segundosRestantes = SEGUNDOS_PARA_LIMPIAR;
+        actualizarTextoFinalizar();
+        btnFinalizar.setVisible(true);
+        btnFinalizar.setManaged(true);
+        lblCuenta.setVisible(true);
+        lblCuenta.setManaged(true);
+
+        cuentaRegresiva = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            segundosRestantes--;
+            actualizarTextoFinalizar();
+            if (segundosRestantes <= 0) {
+                finalizarSolicitud();
+            }
+        }));
+        cuentaRegresiva.setCycleCount(SEGUNDOS_PARA_LIMPIAR);
+        cuentaRegresiva.play();
+    }
+
+    private void actualizarTextoFinalizar() {
+        lblCuenta.setText("La pantalla se limpiará sola en " + segundosRestantes + " s");
     }
 
     private void mostrarQR(String direccion) {
