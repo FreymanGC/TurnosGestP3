@@ -8,9 +8,17 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<!--
+  Pantalla pública estilo "sala de espera":
+  izquierda  = tabla VENTANILLA | TURNO con los últimos llamados (el más reciente en rojo)
+  derecha    = panel de anuncios que rota solo; cuando llaman un turno aparece encima en grande
+  abajo      = fecha y una cinta de mensajes que se desplaza
+-->
 <BorderPane fx:id="raiz" prefWidth="1280" prefHeight="760" styleClass="pantalla"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.turnos.controlador.PantallaPublicaController">
@@ -36,28 +44,58 @@
     </top>
 
     <center>
-        <HBox spacing="28">
+        <HBox spacing="24">
             <padding>
-                <Insets top="28" right="32" bottom="24" left="32"/>
+                <Insets top="22" right="26" bottom="18" left="26"/>
             </padding>
 
-            <VBox alignment="CENTER" spacing="18" styleClass="pantalla-tarjeta" HBox.hgrow="ALWAYS">
-                <Label text="TURNO LLAMADO" styleClass="pantalla-rotulo"/>
-                <Label fx:id="lblTurnoActual" text="---" styleClass="pantalla-turno"/>
-                <Label fx:id="lblVentanilla" text="Ventanilla: -" styleClass="pantalla-ventanilla"/>
+            <!-- ======== Tabla de llamados ======== -->
+            <VBox spacing="0" prefWidth="520" minWidth="460" styleClass="tabla-turnos">
+                <HBox alignment="CENTER_LEFT" styleClass="tabla-cabecera">
+                    <Label text="VENTANILLA" prefWidth="170" alignment="CENTER"/>
+                    <Label text="TURNO" HBox.hgrow="ALWAYS" maxWidth="Infinity" alignment="CENTER"/>
+                    <Label text="HORA" prefWidth="100" alignment="CENTER"/>
+                </HBox>
+                <ListView fx:id="lstHistorial" VBox.vgrow="ALWAYS" focusTraversable="false"/>
                 <Label fx:id="lblAviso" text="" styleClass="mensaje-error" wrapText="true"/>
             </VBox>
 
-            <VBox spacing="14" prefWidth="440" minWidth="400" styleClass="pantalla-tarjeta">
-                <Label text="LLAMADOS RECIENTES" styleClass="pantalla-rotulo"/>
-                <ListView fx:id="lstHistorial" VBox.vgrow="ALWAYS" focusTraversable="false"/>
-            </VBox>
+            <!-- ======== Panel de anuncios + aviso de llamado ======== -->
+            <StackPane HBox.hgrow="ALWAYS" styleClass="panel-media">
+                <VBox fx:id="diapositiva" alignment="CENTER" spacing="14">
+                    <padding>
+                        <Insets top="20" right="40" bottom="20" left="40"/>
+                    </padding>
+                    <StackPane styleClass="diapo-imagen" maxWidth="-Infinity">
+                        <ImageView fx:id="imgDiapositiva" fitHeight="280" fitWidth="500" preserveRatio="true" smooth="true"/>
+                    </StackPane>
+                    <Label fx:id="lblDiapoTitulo" text="" styleClass="diapo-titulo" wrapText="true" textAlignment="CENTER"/>
+                    <Label fx:id="lblDiapoTexto" text="" styleClass="diapo-texto" wrapText="true" textAlignment="CENTER"/>
+                    <HBox fx:id="boxPuntos" alignment="CENTER" spacing="8">
+                        <VBox.margin><Insets top="6"/></VBox.margin>
+                    </HBox>
+                </VBox>
+
+                <VBox fx:id="avisoLlamado" alignment="CENTER" spacing="10" styleClass="aviso-llamado"
+                      visible="false" mouseTransparent="true">
+                    <Label text="TURNO LLAMADO" styleClass="aviso-rotulo"/>
+                    <Label fx:id="lblAvisoTurno" text="" styleClass="aviso-turno"/>
+                    <Label fx:id="lblAvisoVentanilla" text="" styleClass="aviso-ventanilla"/>
+                </VBox>
+            </StackPane>
         </HBox>
     </center>
 
     <bottom>
-        <HBox alignment="CENTER" styleClass="aviso-pie">
-            <Label text="Por favor esté atento a la pantalla · Diríjase a la ventanilla indicada al escuchar el aviso"/>
+        <HBox alignment="CENTER_LEFT" styleClass="pie-pantalla">
+            <VBox alignment="CENTER" styleClass="caja-fecha">
+                <Label fx:id="lblFecha" text="" styleClass="pie-fecha"/>
+                <Label fx:id="lblHoraPie" text="" styleClass="pie-hora"/>
+            </VBox>
+            <!-- La cinta: el texto se mueve de derecha a izquierda dentro de este Pane -->
+            <Pane fx:id="cinta" HBox.hgrow="ALWAYS" styleClass="cinta">
+                <Label fx:id="lblCinta" text="" styleClass="cinta-texto"/>
+            </Pane>
         </HBox>
     </bottom>
 </BorderPane>

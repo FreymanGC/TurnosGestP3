@@ -3,15 +3,16 @@ package com.turnos.util;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-/** Carga una vista FXML con la hoja de estilos compartida y la muestra en la ventana dada. */
+
 public final class Ventanas {
 
-    private static final String ESTILOS = "/css/estilos.css";
+    private static final String ICONO = "/img/icono.png";
 
     private Ventanas() {
     }
@@ -20,7 +21,7 @@ public final class Ventanas {
         try {
             Parent raiz = FXMLLoader.load(Ventanas.class.getResource(rutaFxml));
             Scene escena = new Scene(raiz);
-            escena.getStylesheets().add(Ventanas.class.getResource(ESTILOS).toExternalForm());
+            ventana.getIcons().setAll(new Image(Ventanas.class.getResourceAsStream(ICONO)));
             ventana.setTitle(titulo);
             ventana.setScene(escena);
             ventana.show();

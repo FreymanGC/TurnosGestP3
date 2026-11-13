@@ -8,10 +8,11 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
 
-<VBox fx:id="raiz" alignment="CENTER" spacing="12" maxWidth="400" maxHeight="480" styleClass="tarjeta-login"
+<HBox fx:id="raiz" maxWidth="880" maxHeight="520" styleClass="tarjeta-login"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.turnos.controlador.LoginController">
 
@@ -20,29 +21,44 @@
         <URL value="@../css/comun.css"/>
         <URL value="@../css/login.css"/>
     </stylesheets>
-    <padding>
-        <Insets top="36" right="40" bottom="36" left="40"/>
-    </padding>
-
-    <ImageView fitWidth="84" fitHeight="84" preserveRatio="true">
-        <Image url="@../img/logo.png"/>
-    </ImageView>
-    <Label text="Iniciar sesión" styleClass="titulo"/>
-    <Label fx:id="lblSubtitulo" text="Acceso" styleClass="subtitulo"/>
-
-    <VBox spacing="10">
-        <padding><Insets top="8"/></padding>
-        <Label text="USUARIO" styleClass="etiqueta-seccion"/>
-        <TextField fx:id="txtUsuario" promptText="Su nombre de usuario" maxWidth="Infinity"/>
-        <Label text="CONTRASEÑA" styleClass="etiqueta-seccion"/>
-        <PasswordField fx:id="txtContrasena" promptText="••••••" maxWidth="Infinity" onAction="#iniciarSesion"/>
+    <!-- Columna izquierda: ilustración de bienvenida -->
+    <VBox alignment="CENTER" spacing="10" prefWidth="420" styleClass="login-ilustracion">
+        <padding>
+            <Insets top="30" right="30" bottom="30" left="30"/>
+        </padding>
+        <ImageView fx:id="imgIlustracion" fitWidth="360" preserveRatio="true" smooth="true">
+            <Image url="@../img/ilustracion-atencion.png"/>
+        </ImageView>
+        <Label text="Atención ordenada y sin filas" styleClass="login-lema" wrapText="true" textAlignment="CENTER"/>
+        <Label text="Turnos en tiempo real para cada ventanilla" styleClass="login-sublema" wrapText="true" textAlignment="CENTER"/>
     </VBox>
 
-    <Label fx:id="lblError" text="" styleClass="mensaje-error" wrapText="true"/>
+    <!-- Columna derecha: formulario -->
+    <VBox alignment="CENTER" spacing="12" prefWidth="400" HBox.hgrow="ALWAYS">
+        <padding>
+            <Insets top="36" right="40" bottom="36" left="40"/>
+        </padding>
 
-    <Button fx:id="btnIngresar" text="Ingresar" styleClass="boton-principal" onAction="#iniciarSesion" maxWidth="Infinity">
-        <graphic>
-            <SVGPath styleClass="icono" content="M10 4h10v16H10v-2h8V6h-8zM4 11h9.2l-3-3L11.6 6.6 17 12l-5.4 5.4-1.4-1.4 3-3H4z"/>
-        </graphic>
-    </Button>
-</VBox>
+        <ImageView fitWidth="64" fitHeight="64" preserveRatio="true">
+            <Image url="@../img/logo.png"/>
+        </ImageView>
+        <Label text="Iniciar sesión" styleClass="titulo"/>
+        <Label fx:id="lblSubtitulo" text="Acceso" styleClass="subtitulo"/>
+
+        <VBox spacing="10">
+            <padding><Insets top="8"/></padding>
+            <Label text="USUARIO" styleClass="etiqueta-seccion"/>
+            <TextField fx:id="txtUsuario" promptText="Su nombre de usuario" maxWidth="Infinity"/>
+            <Label text="CONTRASEÑA" styleClass="etiqueta-seccion"/>
+            <PasswordField fx:id="txtContrasena" promptText="••••••" maxWidth="Infinity" onAction="#iniciarSesion"/>
+        </VBox>
+
+        <Label fx:id="lblError" text="" styleClass="mensaje-error" wrapText="true"/>
+
+        <Button fx:id="btnIngresar" text="Ingresar" styleClass="boton-principal" onAction="#iniciarSesion" maxWidth="Infinity">
+            <graphic>
+                <SVGPath styleClass="icono" content="M10 4h10v16H10v-2h8V6h-8zM4 11h9.2l-3-3L11.6 6.6 17 12l-5.4 5.4-1.4-1.4 3-3H4z"/>
+            </graphic>
+        </Button>
+    </VBox>
+</HBox>

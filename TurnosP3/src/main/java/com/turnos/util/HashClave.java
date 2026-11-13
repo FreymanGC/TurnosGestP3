@@ -5,7 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 
-/** SHA-256 en hexadecimal, que es el formato de clave_hash en los datos actuales de la BD. */
+
 public final class HashClave {
 
     private HashClave() {
@@ -16,7 +16,7 @@ public final class HashClave {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             return HexFormat.of().formatHex(digest.digest(texto.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 no está disponible en esta JVM", e);
+            throw new IllegalStateException("SHA-256 no esta disponible en esta JVM", e);
         }
     }
 

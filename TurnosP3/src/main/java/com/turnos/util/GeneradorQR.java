@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.turnos.util;
 
 import com.google.zxing.BarcodeFormat;
@@ -14,34 +10,37 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
- 
+
 import java.util.Map;
- 
-/**
- *
- * @author gomez
- */
-public final class GeneradorQR {
- 
-    private static final Color OSCURO = Color.web("#1E1B4B");
- 
+
+ public final class GeneradorQR {
+
+    private static final int ZONA_SILENCIO = 4;
+
     private GeneradorQR() {
     }
- 
-    public static Image crear(String texto, int tamano) {
+
+    /** @param tamanoMaximo tamaño aproximado en píxeles; la imagen final mide igual o un poco menos. */
+    public static Image crear(String texto, int tamanoMaximo) {
         try {
-            BitMatrix matriz = new QRCodeWriter().encode(texto, BarcodeFormat.QR_CODE, tamano, tamano,
-                    Map.of(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M, EncodeHintType.MARGIN, 1));
-            WritableImage imagen = new WritableImage(matriz.getWidth(), matriz.getHeight());
+            // tamaño 0 = ZXing devuelve la matriz mínima: 1 celda por módulo
+            BitMatrix matriz = new QRCodeWriter().encode(texto, BarcodeFormat.QR_CODE, 0, 0,
+                    Map.of(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M,
+                           EncodeHintType.MARGIN, ZONA_SILENCIO));
+            int modulos = matriz.getWidth();
+            int escala = Math.max(1, tamanoMaximo / modulos);   // píxeles por módulo (entero)
+            int lado = modulos * escala;
+
+            WritableImage imagen = new WritableImage(lado, lado);
             PixelWriter pixeles = imagen.getPixelWriter();
-            for (int y = 0; y < matriz.getHeight(); y++) {
-                for (int x = 0; x < matriz.getWidth(); x++) {
-                    pixeles.setColor(x, y, matriz.get(x, y) ? OSCURO : Color.WHITE);
+            for (int y = 0; y < lado; y++) {
+                for (int x = 0; x < lado; x++) {
+                    pixeles.setColor(x, y, matriz.get(x / escala, y / escala) ? Color.BLACK : Color.WHITE);
                 }
             }
             return imagen;
         } catch (WriterException e) {
-            throw new IllegalArgumentException("No se pudo generar el código QR", e);
+            throw new IllegalArgumentException("No se pudo generar el codigo QR", e);
         }
     }
 }

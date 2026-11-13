@@ -8,6 +8,7 @@ import com.turnos.modelo.Servicio;
 import com.turnos.modelo.Turno;
 import com.turnos.protocolo.Mensaje;
 import com.turnos.protocolo.TipoMensaje;
+import com.turnos.util.Animaciones;
 import com.turnos.util.GeneradorQR;
 import com.turnos.util.TareaAsincrona;
 import javafx.animation.KeyFrame;
@@ -32,15 +33,11 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
- * Terminal (kiosko) donde la persona elige el servicio y retira su turno.
- * Cada servicio tiene su propio color e ícono; el tiquete incluye un QR para seguir el turno
- * desde el celular.
- */
+
 public class GeneradoraTurnosController implements ObservadorServidor {
 
     private static final int COLUMNAS = 2;
-    private static final int TAMANO_QR = 380;
+    private static final int TAMANO_QR = 230;
     private static final String SIN_TURNO = "—";
     private static final DateTimeFormatter FORMATO_HORA = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter FORMATO_RELOJ = DateTimeFormatter.ofPattern("hh:mm a");
@@ -59,10 +56,11 @@ public class GeneradoraTurnosController implements ObservadorServidor {
     @FXML private Label lblHora;
     @FXML private Label lblQR;
     @FXML private ImageView imgQR;
+    @FXML private ImageView imgIlustracion;
+    @FXML private Label lblUrl;
 
     private final ServicioRemoto servicioService = new ServicioRemoto();
     private final TurnoRemoto turnoService = new TurnoRemoto();
-    /** Dirección base de la página del QR; se pide al servidor una sola vez. */
     private volatile String urlConsulta;
 
     @FXML
@@ -70,6 +68,7 @@ public class GeneradoraTurnosController implements ObservadorServidor {
         ClienteRed.getInstancia().agregarObservador(this);
         iniciarReloj();
         cargarServicios();
+        Animaciones.flotar(imgIlustracion, 12, 2.2);   // la ilustración sube y baja
     }
 
     private void cargarServicios() {
@@ -108,6 +107,7 @@ public class GeneradoraTurnosController implements ObservadorServidor {
             boton.setOnAction(evento -> generarTurno(servicio));
             gridServicios.add(boton, i % COLUMNAS, i / COLUMNAS);
         }
+        Animaciones.entradaEscalonada(gridServicios.getChildren(), 110); // entran en cascada
     }
 
     /** Ícono grande en un círculo, la letra del servicio y, si aplica, la etiqueta de preferencial. */
@@ -203,6 +203,7 @@ public class GeneradoraTurnosController implements ObservadorServidor {
         salto.setToX(1);
         salto.setToY(1);
         salto.play();
+        Animaciones.rebote(lblTurnoGenerado);
     }
 
     private void mostrarQR(String direccion) {
@@ -210,6 +211,15 @@ public class GeneradoraTurnosController implements ObservadorServidor {
         imgQR.setImage(hayQR ? GeneradorQR.crear(direccion, TAMANO_QR) : null);
         lblQR.setVisible(hayQR);
         lblQR.setManaged(hayQR);
+        lblUrl.setText(hayQR ? "o abra en el navegador:\n" + direccion : "");
+        lblUrl.setVisible(hayQR);
+        lblUrl.setManaged(hayQR);
+        if (hayQR) {
+            Animaciones.aparecer(imgQR);
+        }
+        // la ilustración ocupa el tiquete vacío; cuando hay turno, su lugar lo toma el QR
+        imgIlustracion.setVisible(!hayQR);
+        imgIlustracion.setManaged(!hayQR);
     }
 
     private void iniciarReloj() {

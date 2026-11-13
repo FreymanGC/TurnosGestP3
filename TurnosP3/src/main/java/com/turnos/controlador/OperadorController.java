@@ -11,6 +11,7 @@ import com.turnos.modelo.Turno;
 import com.turnos.modelo.Usuario;
 import com.turnos.modelo.Ventanilla;
 import com.turnos.protocolo.Mensaje;
+import com.turnos.util.Animaciones;
 import com.turnos.util.Paneles;
 import com.turnos.util.TareaAsincrona;
 import javafx.application.Platform;
@@ -52,6 +53,7 @@ public class OperadorController implements ObservadorServidor {
     @FXML private Label lblVentanilla;
     @FXML private Label lblEstadoVentanilla;
     @FXML private Label lblTurnoActual;
+    @FXML private javafx.scene.image.ImageView imgVentanilla;
     @FXML private Label lblEstadoTurno;
     @FXML private Label lblMensaje;
     @FXML private FlowPane boxAcciones;
@@ -83,6 +85,7 @@ public class OperadorController implements ObservadorServidor {
     private void initialize() {
         loginController.configurar(Rol.OPERADOR, "Acceso para operadores", this::alAutenticar);
         lstHistorial.setItems(historial);
+        Animaciones.flotar(imgVentanilla, 10, 2.4);
         ClienteRed.getInstancia().agregarObservador(this);
         mostrarLogin();
     }
@@ -214,7 +217,11 @@ public class OperadorController implements ObservadorServidor {
         lblEstadoVentanilla.getStyleClass().removeAll("chip-ok", "chip-off");
         lblEstadoVentanilla.getStyleClass().add(ventanilla.disponible() ? "chip-ok" : "chip-off");
         btnDisponibilidad.setText(ventanilla.disponible() ? "Pausar ventanilla" : "Reanudar ventanilla");
-        lblTurnoActual.setText(turnoActual == null ? SIN_TURNO : turnoActual.codigo());
+        String codigoNuevo = turnoActual == null ? SIN_TURNO : turnoActual.codigo();
+        if (!codigoNuevo.equals(lblTurnoActual.getText())) {
+            Animaciones.rebote(lblTurnoActual);   // salta cuando cambia el turno
+        }
+        lblTurnoActual.setText(codigoNuevo);
         lblEstadoTurno.setText(turnoActual == null ? "Sin turno asignado" : turnoActual.estado().getNombre());
         lblEstadoTurno.getStyleClass().removeAll("estado-llamado", "estado-atencion");
         if (turnoActual != null) {

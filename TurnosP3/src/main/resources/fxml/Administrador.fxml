@@ -48,8 +48,22 @@
         </top>
 
         <center>
-            <TabPane tabClosingPolicy="UNAVAILABLE">
-                <BorderPane.margin><Insets top="12" right="16" bottom="0" left="16"/></BorderPane.margin>
+          <VBox spacing="12">
+            <BorderPane.margin><Insets top="14" right="16" bottom="0" left="16"/></BorderPane.margin>
+
+            <!-- Banner de bienvenida con ilustración -->
+            <HBox alignment="CENTER_LEFT" spacing="20" styleClass="banner-admin">
+                <VBox spacing="4" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                    <Label text="Todo el sistema en un solo lugar" styleClass="banner-titulo"/>
+                    <Label text="Administre usuarios, servicios y ventanillas, vea el estado en tiempo real y genere reportes."
+                           styleClass="banner-texto" wrapText="true"/>
+                </VBox>
+                <ImageView fx:id="imgBanner" fitHeight="78" preserveRatio="true" smooth="true">
+                    <Image url="@../img/ilustracion-admin.png"/>
+                </ImageView>
+            </HBox>
+
+            <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                 <!-- ============ USUARIOS Y FUNCIONARIOS ============ -->
                 <Tab text="Usuarios y funcionarios">
                     <HBox spacing="15">
@@ -165,6 +179,7 @@
                     </VBox>
                 </Tab>
             </TabPane>
+          </VBox>
         </center>
 
         <bottom>

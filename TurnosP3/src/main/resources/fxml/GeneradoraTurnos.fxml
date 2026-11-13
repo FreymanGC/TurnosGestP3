@@ -57,11 +57,19 @@
                 <Label text="SU TURNO" styleClass="etiqueta-seccion"/>
                 <Label fx:id="lblTurnoGenerado" text="—" styleClass="codigo-tiquete" minWidth="-Infinity"/>
                 <Label fx:id="lblDetalleTurno" text="Seleccione un servicio" styleClass="subtitulo" wrapText="true"/>
-                <ImageView fx:id="imgQR" fitWidth="190" fitHeight="190" preserveRatio="true" smooth="false">
+                <!-- Se ve mientras no hay turno; al generar uno la reemplaza el QR -->
+                <ImageView fx:id="imgIlustracion" fitWidth="250" preserveRatio="true" smooth="true">
+                    <Image url="@../img/ilustracion-turno.png"/>
+                </ImageView>
+                <!-- Sin fitWidth: el QR se muestra a su tamaño real para que no se deforme -->
+                <ImageView fx:id="imgQR" preserveRatio="true" smooth="false">
                     <VBox.margin><Insets top="8"/></VBox.margin>
                 </ImageView>
                 <Label fx:id="lblQR" text="Escanee el código para ver en su celular cuándo y en qué ventanilla lo atienden"
                        styleClass="texto-qr" wrapText="true" textAlignment="CENTER" visible="false" managed="false"/>
+                <!-- Por si la cámara no lee el QR: la misma dirección para escribirla a mano -->
+                <Label fx:id="lblUrl" text="" styleClass="url-qr" wrapText="true" textAlignment="CENTER"
+                       visible="false" managed="false"/>
             </VBox>
         </HBox>
     </center>

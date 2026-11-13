@@ -7,23 +7,22 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
  * Estado que muestra la Pantalla Pública (Singleton con propiedades observables de JavaFX).
- * Ya no depende de estar en el mismo proceso que el Operador: lo alimentan los eventos
- * EVENTO_TURNO_LLAMADO que el servidor envía por el socket (ver PantallaPublicaController).
+ * Lo alimentan los eventos EVENTO_TURNO_LLAMADO que el servidor envía por el socket
+ * (ver PantallaPublicaController). El historial guarda los llamados completos para que la
+ * tabla de la pantalla pueda dibujar cada columna (ventanilla, turno y hora) por separado.
  */
 public class EstadoPublico {
 
     private static final int MAXIMO_HISTORIAL = 10;
-    private static final DateTimeFormatter FORMATO_HORA = DateTimeFormatter.ofPattern("HH:mm");
     private static final EstadoPublico INSTANCIA = new EstadoPublico();
 
     private final StringProperty turnoLlamado = new SimpleStringProperty("---");
     private final StringProperty ventanillaLlamada = new SimpleStringProperty("-");
-    private final ObservableList<String> historial = FXCollections.observableArrayList();
+    private final ObservableList<TurnoLlamado> historial = FXCollections.observableArrayList();
 
     private EstadoPublico() {
     }
@@ -36,7 +35,7 @@ public class EstadoPublico {
         enHiloFx(() -> {
             turnoLlamado.set(llamado.codigo());
             ventanillaLlamada.set(String.valueOf(llamado.numeroVentanilla()));
-            historial.add(0, describir(llamado));
+            historial.add(0, llamado);
             while (historial.size() > MAXIMO_HISTORIAL) {
                 historial.remove(historial.size() - 1);
             }
@@ -52,7 +51,7 @@ public class EstadoPublico {
             TurnoLlamado ultimo = llamados.get(0);
             turnoLlamado.set(ultimo.codigo());
             ventanillaLlamada.set(String.valueOf(ultimo.numeroVentanilla()));
-            historial.setAll(llamados.stream().map(EstadoPublico::describir).toList());
+            historial.setAll(llamados.subList(0, Math.min(MAXIMO_HISTORIAL, llamados.size())));
         });
     }
 
@@ -64,13 +63,8 @@ public class EstadoPublico {
         return ventanillaLlamada;
     }
 
-    public ObservableList<String> getHistorial() {
+    public ObservableList<TurnoLlamado> getHistorial() {
         return historial;
-    }
-
-    private static String describir(TurnoLlamado llamado) {
-        return llamado.codigo() + "  →  Ventanilla " + llamado.numeroVentanilla()
-                + "  ·  " + llamado.fechaHoraLlamado().format(FORMATO_HORA);
     }
 
     private static void enHiloFx(Runnable accion) {
