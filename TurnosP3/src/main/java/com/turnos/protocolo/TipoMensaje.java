@@ -1,10 +1,6 @@
 package com.turnos.protocolo;
 
-/**
- * Tipos de mensaje que viajan por el socket.
- * Solicitudes: las envía un cliente; el servidor contesta con RESPUESTA (mismo id).
- * EVENTO_*: el servidor los envía por su cuenta a todos los clientes (patrón Observer).
- */
+
 public enum TipoMensaje {
 
     RESPUESTA,
@@ -45,6 +41,8 @@ public enum TipoMensaje {
 
     // Eventos del servidor
     EVENTO_TURNO_LLAMADO,
+    /** Un turno terminó (finalizado o no se presentó): la pantalla pública lo quita. */
+    EVENTO_TURNO_RETIRADO,
     EVENTO_SERVICIOS_ACTUALIZADOS,
     EVENTO_VENTANILLAS_ACTUALIZADAS;
 

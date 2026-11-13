@@ -20,4 +20,9 @@ class NotificadorRed implements NotificadorLlamados {
     public void turnoLlamado(TurnoLlamado llamado) {
         centro.publicar(TipoMensaje.EVENTO_TURNO_LLAMADO, llamado);
     }
+
+    @Override
+    public void turnoRetirado(String codigo) {
+        centro.publicar(TipoMensaje.EVENTO_TURNO_RETIRADO, codigo);
+    }
 }

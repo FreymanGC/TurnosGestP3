@@ -15,14 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Flujo del turno: EN_ESPERA → LLAMADO → EN_ATENCION → FINALIZADO (o LLAMADO → CANCELADO).
- *
- * Concurrencia: en el servidor cada cliente se atiende en un hilo distinto, así que varios hilos
- * pueden llamar a generarTurno o llamarSiguiente al mismo tiempo. Se protege en dos niveles:
- *  1. Java: ReentrantLock justo (fair) → un hilo a la vez en la sección crítica.
- *  2. BD: transacción con FOR UPDATE / SKIP LOCKED en TurnoDAO.
- */
+
 public class TurnoService {
 
     private final ReentrantLock candadoGeneracion = new ReentrantLock(true);
@@ -81,13 +74,17 @@ public class TurnoService {
     }
 
     public Turno finalizarAtencion(Turno turno) {
-        return turnoDAO.finalizarAtencion(turno.id(), LocalDateTime.now())
+        Turno finalizado = turnoDAO.finalizarAtencion(turno.id(), LocalDateTime.now())
                 .orElseThrow(() -> new ReglaNegocioException("Solo se puede finalizar un turno que está en atención."));
+        notificador.turnoRetirado(finalizado.codigo());   // sale de la pantalla pública
+        return finalizado;
     }
 
     public Turno marcarAusente(Turno turno) {
-        return turnoDAO.marcarAusente(turno.id(), LocalDateTime.now())
+        Turno cancelado = turnoDAO.marcarAusente(turno.id(), LocalDateTime.now())
                 .orElseThrow(() -> new ReglaNegocioException("Solo se puede marcar ausente un turno en estado Llamado."));
+        notificador.turnoRetirado(cancelado.codigo());    // sale de la pantalla pública
+        return cancelado;
     }
 
     public Optional<Turno> obtenerTurnoActivo(Ventanilla ventanilla) {

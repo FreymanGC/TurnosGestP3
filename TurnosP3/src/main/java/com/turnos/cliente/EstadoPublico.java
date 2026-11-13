@@ -9,12 +9,7 @@ import javafx.collections.ObservableList;
 
 import java.util.List;
 
-/**
- * Estado que muestra la Pantalla Pública (Singleton con propiedades observables de JavaFX).
- * Lo alimentan los eventos EVENTO_TURNO_LLAMADO que el servidor envía por el socket
- * (ver PantallaPublicaController). El historial guarda los llamados completos para que la
- * tabla de la pantalla pueda dibujar cada columna (ventanilla, turno y hora) por separado.
- */
+
 public class EstadoPublico {
 
     private static final int MAXIMO_HISTORIAL = 10;
@@ -35,6 +30,8 @@ public class EstadoPublico {
         enHiloFx(() -> {
             turnoLlamado.set(llamado.codigo());
             ventanillaLlamada.set(String.valueOf(llamado.numeroVentanilla()));
+            // si vuelven a llamar el mismo turno, se quita la fila vieja: cada turno sale una sola vez
+            historial.removeIf(t -> t.codigo().equals(llamado.codigo()));
             historial.add(0, llamado);
             while (historial.size() > MAXIMO_HISTORIAL) {
                 historial.remove(historial.size() - 1);
@@ -42,12 +39,30 @@ public class EstadoPublico {
         });
     }
 
+    /** Quita de la pantalla un turno que ya terminó (finalizado o no se presentó). */
+    public void retirar(String codigo) {
+        enHiloFx(() -> {
+            historial.removeIf(t -> t.codigo().equals(codigo));
+            if (historial.isEmpty()) {
+                turnoLlamado.set("---");
+                ventanillaLlamada.set("-");
+            } else {
+                TurnoLlamado primero = historial.get(0);
+                turnoLlamado.set(primero.codigo());
+                ventanillaLlamada.set(String.valueOf(primero.numeroVentanilla()));
+            }
+        });
+    }
+
     /** Recibe los llamados del más reciente al más antiguo. */
     public void cargarHistorial(List<TurnoLlamado> llamados) {
-        if (llamados.isEmpty()) {
-            return;
-        }
         enHiloFx(() -> {
+            if (llamados.isEmpty()) {
+                historial.clear();
+                turnoLlamado.set("---");
+                ventanillaLlamada.set("-");
+                return;
+            }
             TurnoLlamado ultimo = llamados.get(0);
             turnoLlamado.set(ultimo.codigo());
             ventanillaLlamada.set(String.valueOf(ultimo.numeroVentanilla()));

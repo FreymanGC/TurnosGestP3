@@ -38,11 +38,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
-
+/**
+ * Pantalla pública tipo sala de espera.
+ * Se actualiza sola: es observadora de ClienteRed. Cuando una ventanilla llama un turno, el
+ * servidor envía EVENTO_TURNO_LLAMADO y el hilo lector del socket llama a alRecibirEvento.
+ * Si se pierde la conexión, un hilo reintenta cada 3 segundos.
+ * <p>
+ * Además de la tabla de llamados tiene un panel de anuncios que rota solo, un aviso grande
+ * que aparece encima al llamar un turno y una cinta de mensajes en el pie.
+ */
 public class PantallaPublicaController implements ObservadorServidor {
 
     @FXML private Label lblHora;
-    
     @FXML private Label lblAviso;
     @FXML private ListView<TurnoLlamado> lstHistorial;
 
@@ -79,7 +86,7 @@ public class PantallaPublicaController implements ObservadorServidor {
     private static final String MENSAJE_CINTA =
             "Bienvenidos  •  Esté atento a la pantalla: al escuchar el aviso diríjase a la ventanilla indicada"
             + "  •  Escanee el código QR de su tiquete para seguir su turno desde el celular"
-            + "  •  Adultos mayores, embarazadas y personas con discapacidad tienen atencion preferencial  •  ";
+            + "  •  Adultos mayores, embarazadas y personas con discapacidad tienen atención preferencial  •  ";
 
     /** Anuncios que rotan en el panel derecho: imagen, título y texto. */
     private record Anuncio(String imagen, String titulo, String texto) {
@@ -87,10 +94,10 @@ public class PantallaPublicaController implements ObservadorServidor {
 
     private static final List<Anuncio> ANUNCIOS = List.of(
             new Anuncio("/img/ilustracion-turno.png", "Siga su turno desde el celular",
-                    "Escanee el código QR de su tiquete y vea cuantas personas faltan y en que ventanilla lo atienden."),
+                    "Escanee el código QR de su tiquete y vea cuántas personas faltan y en qué ventanilla lo atienden."),
             new Anuncio("/img/ilustracion-atencion.png", "¡Bienvenidos!",
                     "Al escuchar el aviso, diríjase a la ventanilla que indica la pantalla."),
-            new Anuncio("/img/ilustracion-ventanilla.png", "Atencion preferencial",
+            new Anuncio("/img/ilustracion-ventanilla.png", "Atención preferencial",
                     "Adultos mayores, embarazadas y personas con discapacidad son atendidos con prioridad."),
             new Anuncio("/img/ilustracion-espera.png", "Gracias por su paciencia",
                     "Si no se presenta cuando lo llaman, su turno se marca como ausente."));
@@ -185,6 +192,8 @@ public class PantallaPublicaController implements ObservadorServidor {
             TurnoLlamado llamado = (TurnoLlamado) evento.getDatos();
             EstadoPublico.getInstancia().publicar(llamado);
             Platform.runLater(() -> avisar(llamado));
+        } else if (evento.getTipo() == TipoMensaje.EVENTO_TURNO_RETIRADO) {
+            EstadoPublico.getInstancia().retirar((String) evento.getDatos());
         }
     }
 

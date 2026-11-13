@@ -145,13 +145,17 @@ public class TurnoDAO {
     public List<TurnoLlamado> listarUltimosLlamados(LocalDate fechaOperacion, int limite) {
         String sql = "SELECT t.codigo, v.numero, t.fecha_hora_llamado FROM turno t "
                 + "JOIN ventanilla v ON v.id_ventanilla = t.id_ventanilla "
+                // solo turnos que siguen activos: los finalizados o cancelados ya no se muestran
                 + "WHERE t.fecha_operacion = ? AND t.fecha_hora_llamado IS NOT NULL "
+                + "AND t.id_estado_turno IN (?, ?) "
                 + "ORDER BY t.fecha_hora_llamado DESC, t.id_turno DESC LIMIT ?";
         return EjecutorSQL.consultar(conexion -> {
             List<TurnoLlamado> llamados = new ArrayList<>();
             try (PreparedStatement ps = conexion.prepareStatement(sql)) {
                 ps.setObject(1, fechaOperacion);
-                ps.setInt(2, limite);
+                ps.setInt(2, EstadoTurno.LLAMADO.getId());
+                ps.setInt(3, EstadoTurno.EN_ATENCION.getId());
+                ps.setInt(4, limite);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         llamados.add(new TurnoLlamado(
@@ -239,7 +243,12 @@ public class TurnoDAO {
         }
     }
 
-   
+    /**
+     * Orden de atención (innovación de prioridad):
+     *  1. Turnos que ya esperaron más de MINUTOS_MAXIMOS_ESPERA (nadie espera para siempre).
+     *  2. Servicios con mayor prioridad (preferencial).
+     *  3. Orden de llegada.
+     */
     private Optional<Long> reservarSiguienteEnEspera(Connection conexion, int idVentanilla, LocalDate fechaOperacion,
                                                      LocalDateTime ahora) throws SQLException {
         String sql = "SELECT t.id_turno FROM turno t "

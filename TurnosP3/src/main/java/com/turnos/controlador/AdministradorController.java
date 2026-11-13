@@ -12,6 +12,7 @@ import com.turnos.modelo.Usuario;
 import com.turnos.modelo.Ventanilla;
 import com.turnos.protocolo.Mensaje;
 import com.turnos.protocolo.TipoMensaje;
+import com.turnos.util.Animaciones;
 import com.turnos.util.Paneles;
 import com.turnos.util.TareaAsincrona;
 import javafx.application.Platform;
@@ -56,6 +57,7 @@ public class AdministradorController implements ObservadorServidor {
     @FXML private BorderPane panelAdmin;
     @FXML private Label lblBienvenida;
     @FXML private Label lblMensaje;
+    @FXML private javafx.scene.image.ImageView imgBanner;
 
     @FXML private TableView<Usuario> tblUsuarios;
     @FXML private TableColumn<Usuario, String> colUsuUsuario;
@@ -111,6 +113,7 @@ public class AdministradorController implements ObservadorServidor {
         loginController.configurar(Rol.ADMIN, "Acceso para administradores", this::alAutenticar);
         Paneles.mostrarSolo(login, login, panelAdmin);
         ClienteRed.getInstancia().agregarObservador(this);
+        Animaciones.flotar(imgBanner, 6, 2.6);
 
         colUsuUsuario.setCellValueFactory(c -> texto(c.getValue().nombreUsuario()));
         colUsuNombre.setCellValueFactory(c -> texto(c.getValue().nombreCompleto()));
@@ -343,7 +346,8 @@ public class AdministradorController implements ObservadorServidor {
     @Override
     public void alRecibirEvento(Mensaje evento) {
         if (administrador != null && (evento.getTipo() == TipoMensaje.EVENTO_VENTANILLAS_ACTUALIZADAS
-                || evento.getTipo() == TipoMensaje.EVENTO_TURNO_LLAMADO)) {
+                || evento.getTipo() == TipoMensaje.EVENTO_TURNO_LLAMADO
+                || evento.getTipo() == TipoMensaje.EVENTO_TURNO_RETIRADO)) {
             Platform.runLater(this::cargarVentanillas);
         }
     }
@@ -353,7 +357,7 @@ public class AdministradorController implements ObservadorServidor {
         Platform.runLater(() -> {
             if (administrador != null) {
                 volverAlLogin();
-                loginController.mostrarError("Se perdio la conexión con el servidor. Inicie sesion de nuevo.");
+                loginController.mostrarError("Se perdió la conexión con el servidor. Inicie sesión de nuevo.");
             }
         });
     }
